@@ -11,14 +11,15 @@ from pyspark.ml.evaluation import ClusteringEvaluator
 
 
 # Load the data
-# raw_data = spark.read.csv("/vast/palmer/scratch/sbsc/mu78/test_data/basin_59_1173421.csv", header = True, inferSchema = True)
-raw_data = spark.read.csv('/home/mueblacker/Documents/Glowabio/Code/pyspark/basin_59_1173421.csv', header = True, inferSchema = True)
+raw_data = spark.read.csv("/vast/palmer/scratch/sbsc/mu78/test_data/basins.csv", header = True, inferSchema = True)
+# raw_data = spark.read.csv('/home/mueblacker/Documents/Glowabio/Code/pyspark/basin_59_1173421.csv', header = True, inferSchema = True)
 
 
 # df_new = raw_data.select([x for x in raw_data.columns if 'mean' in x] + [x for x in raw_data.columns if 'stream' in x] + [x for x in raw_data.columns if 'land' in x]) 
 # columns = df_new.columns
 
-selected_features = spark.read.csv('/home/mueblacker/Documents/Glowabio/Data/test_data_clustering/sman_uncorr_envVar_00_000006_screening.csv', header = True, inferSchema = True)
+#selected_features = spark.read.csv('/home/mueblacker/Documents/Glowabio/Data/test_data_clustering/sman_uncorr_envVar_00_000006_screening.csv', header = True, inferSchema = True)
+selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/test_data/sman_uncorr_envVar_00_000006_screening.csv', header = True, inferSchema = True)
 columns = selected_features.rdd.map(lambda x: x[0]).collect()
 
 # Remove land use classes with 0% in all sub-catchments
@@ -69,13 +70,13 @@ evaluator = ClusteringEvaluator(predictionCol = 'prediction',
 
 k = [2, 5, 10, 15, 20, 25, 30, 35, 40]
 for i in k:
-    kmeans=KMeans(featuresCol='pca_features', k=i).setInitSteps(10).setMaxIter(100).setSeed(256)
-    model=kmeans.fit(pca_data)
-    predictions=model.transform(pca_data)
-    score=evaluator.evaluate(predictions)
-    wss= model.summary.trainingCost
+    kmeans = KMeans(featuresCol = 'pca_features', k = i).setInitSteps(100).setMaxIter(500).setSeed(256)
+    model = kmeans.fit(pca_data)
+    predictions = model.transform(pca_data)
+    score = evaluator.evaluate(predictions)
+    wss = model.summary.trainingCost
     silhouette_score.append(score)
-    print('Silhouette Score for k =',i,'is',score)
+    print('Silhouette Score for k =', i,'is', score)
     within_sum_of_square.append({"k": i, 'wss': wss})
  
 
