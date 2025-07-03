@@ -52,7 +52,7 @@ pca_data = pipeline_model.transform(raw_data).select('subcID',
 
 
 # Trains a k-means model.
-kmeans = KMeans(featuresCol = 'scaledFeatures', k = 30).setInitSteps(100).setMaxIter(500).setSeed(256)
+kmeans = KMeans(featuresCol = 'scaled_features', k = 30).setInitSteps(100).setMaxIter(500).setSeed(256)
 model = kmeans.fit(pca_data)
 predictions = model.transform(pca_data)
 clusters = predictions.select('subcID', 'prediction')
