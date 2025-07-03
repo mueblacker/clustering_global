@@ -56,6 +56,7 @@ while var < 0.98:
     var = sum(pca_model.explainedVariance).item()
 
 
+print('PCA =', i, 'Var =', var)
 pca_data = pca_model.transform(scaled_data)
 
 
@@ -68,7 +69,7 @@ evaluator = ClusteringEvaluator(predictionCol = 'prediction',
                                 metricName = 'silhouette', 
                                 distanceMeasure = 'squaredEuclidean')
 
-k = [2, 5, 10, 15, 20, 25, 30, 35, 40]
+k = [2, 5, 10, 15, 20, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 40]
 for i in k:
     kmeans = KMeans(featuresCol = 'pca_features', k = i).setInitSteps(100).setMaxIter(500).setSeed(256)
     model = kmeans.fit(pca_data)
@@ -86,5 +87,7 @@ sil_list = [(k[i], silhouette_score[i]) for i in range(len(k))]
 sil_df = spark.createDataFrame(sil_list, ['k', 'sil'])
 wss_df = spark.createDataFrame(within_sum_of_square)
 #df.write.option("header",True).csv("/home/mueblacker/Documents/Glowabio/Code/pyspark/sil_score.csv")
-sil_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/home/mueblacker/Documents/Glowabio/Data/test_data_clustering/sil_score')
-wss_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/home/mueblacker/Documents/Glowabio/Data/test_data_clustering/wss')
+sil_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/test_data/sil_score')
+wss_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/test_data/wss')
+
+stop.spark()
