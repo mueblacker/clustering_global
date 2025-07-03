@@ -12,8 +12,11 @@ from pyspark.ml.evaluation import ClusteringEvaluator
 
 # Load the data
 # raw_data = spark.read.csv("/vast/palmer/scratch/sbsc/mu78/test_data/basin_59_1173421.csv", header = True, inferSchema = True)
-raw_data = spark.read.csv("/home/mueblacker/Documents/Glowabio/Code/pyspark/basin_59_1173421.csv", header = True, inferSchema = True)
+# raw_data = spark.read.csv("/home/mueblacker/Documents/Glowabio/Code/pyspark/basin_59_1173421.csv", header = True, inferSchema = True)
+raw_data = spark.read.csv("/vast/palmer/scratch/sbsc/mu78/test_data/basins.csv", header = True, inferSchema = True)
 
+selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/test_data/sman_uncorr_envVar_00_000006_screening.csv', header = True, inferSchema = True)
+columns = selected_features.rdd.map(lambda x: x[0]).collect()
 
 # Remove land use classes with 0% in all sub-catchments
 # sums = raw_data.select(*[fun.sum(c).alias(c) for c in raw_data.columns]).first()
@@ -25,15 +28,15 @@ raw_data = spark.read.csv("/home/mueblacker/Documents/Glowabio/Code/pyspark/basi
 
 
 # Merge multiple columns into a vector column, scale the data and run a pca
-assembler = VectorAssembler(inputCols = raw_data.columns[4:],
+assembler = VectorAssembler(inputCols = columns,
                             outputCol = 'features')
 
 scaler = StandardScaler(inputCol = 'features', 
                         outputCol = 'scaled_features', 
-                        withStd=True, 
-                        withMean=True)
+                        withStd = True, 
+                        withMean = True)
 
-pca = PCA(k = 5, 
+pca = PCA(k = 28, 
           inputCol = 'scaled_features', 
           outputCol = 'pca_features')
 
@@ -54,9 +57,9 @@ model = kmeans.fit(pca_data)
 predictions = model.transform(pca_data)
 clusters = predictions.select('subcID', 'prediction')
 # Save clusters as csv
-clusters.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/home/mueblacker/Documents/Glowabio/Data/test_data_clustering/cluster_prediction')
+clusters.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/test_data/cluster_prediction')
 # Save kmeans model
-model.save('/home/mueblacker/Documents/Glowabio/Data/test_data_clustering/kmeans_model')
+model.save('/vast/palmer/scratch/sbsc/mu78/test_data/kmeans_model')
 
 
 spark.stop()
