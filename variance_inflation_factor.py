@@ -10,7 +10,7 @@ from pyspark.ml.feature import VectorAssembler, StandardScaler
 from pyspark.sql.functions import col
 
 # Function to calculate vif
-def calculate_vif(data, features, vif_threshold=5):
+def calculate_vif(data, features, vif_threshold=10):
     """
     Calculate Variance Inflation Factor (VIF) for the defined variables
     and eliminate variables iteratively based on VIF threshold.
@@ -64,26 +64,34 @@ def calculate_vif(data, features, vif_threshold=5):
 
 
 # Load the data
-# raw_data = spark.read.csv("/vast/palmer/scratch/sbsc/mu78/test_data/basin_59_1173421.csv", header = True, inferSchema = True)
-raw_data = spark.read.csv("/home/mueblacker/Documents/Glowabio/Code/pyspark/basin_59_1173421.csv", header = True, inferSchema = True)
-
+#raw_data = spark.read.csv("/vast/palmer/scratch/sbsc/mu78/test_data/basins.csv", header = True, inferSchema = True)
+#raw_data = spark.read.csv("/home/mueblacker/Documents/Glowabio/Code/pyspark/basin_59_1173421.csv", header = True, inferSchema = True)
+reg_path = "/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0/reg_id=3"
+env_var = ['bio1', 'bio2', 'bio3', 'bio4', 'bio5', 'bio6', 'bio7', 'bio8',
+           'bio9', 'bio10', 'bio11', 'bio12', 'bio13', 'bio14', 'bio15', 'bio16', 
+           'bio17', 'bio18', 'bio19', 'elev', 'flowpos', 'spi', 'sti', 'cti',
+           'length', 'stright', 'sinusoid', 'cum_length', 'out_dist', 'source_elev', 'outlet_elev', 
+           'elev_drop', 'out_drop', 'gradient', 'c10', 'c20', 'c30', 'c40', 'c50', 'c60', 'c70', 
+           'c80', 'c90', 'c100', 'c110', 'c120', 'c130', 'c140', 'c150', 'c160', 'c170', 'c180', 
+           'c190', 'c200', 'c210', 'c220'] #flow_ltm
+raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).select(env_var)
 
 # Remove land use classes with 0% in all sub-catchments
 sums = raw_data.select(*[fun.sum(c).alias(c) for c in raw_data.columns]).first()
 cols_to_dop = [c for c in sums.asDict() if sums[c] == 0]
 raw_data = raw_data.drop(*cols_to_dop)
 
-df_new = raw_data.select([x for x in raw_data.columns if 'mean' in x] + [x for x in raw_data.columns if 'stream' in x] + [x for x in raw_data.columns if 'land' in x]) 
+# df_new = raw_data.select([x for x in raw_data.columns if 'mean' in x] + [x for x in raw_data.columns if 'stream' in x] + [x for x in raw_data.columns if 'land' in x]) 
 
-columns = df_new.columns
+columns = raw_data.columns
 
 
-remaining_features, vif_values = calculate_vif(df_new, columns, vif_threshold=5)
+remaining_features, vif_values = calculate_vif(raw_data, columns, vif_threshold=5)
 
 print("Remaining features after VIF elimination:", remaining_features)
 
 # Save remaining features with vif value
-vif_values.coalesce(1).write.mode('overwrite').option("header", "true").csv("/home/mueblacker/Documents/Glowabio/Data/test_data_clustering/vif_values")
+vif_values.coalesce(1).write.mode('overwrite').option("header", "true").csv("/vast/palmer/scratch/sbsc/mu78/clustering_global/reg_id_3/vif_values")
 
 # Stop spark session
 spark.stop()
