@@ -5,7 +5,7 @@
 #SBATCH --ntasks-per-node=1      # do not change, leave as 1 task per node
 #SBATCH --cpus-per-task=36       # cpu-cores per task, change as needed
 #SBATCH --mem 180G               # memory per node, change as needed
-#SBATCH --time=00:30:00
+#SBATCH --time=05:00:00
 #SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/vif.%A_%a.out
 #SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/vif.%A_%a.err
 #SBATCH --mail-type=NONE
@@ -44,6 +44,7 @@ Use a Browser on your local machine to go to:
 localhost:${web_port} 
 "
 
+date
 
 # Customize the executor resources below to match resources requested above
 # with an allowance for spark driver overhead. Also change the path to your spark job.
@@ -53,3 +54,4 @@ spark-submit --master ${SPARK_MASTER_URL} \
   --total-executor-cores $((SLURM_CPUS_ON_NODE - 1)) \
   /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/variance_inflation_factor.py
 
+date
