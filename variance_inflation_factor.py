@@ -27,7 +27,8 @@ def calculate_vif(data, features, vif_threshold=10):
     while True:
         vif_values.clear()
         for feature in remaining_features:
-            # Assemble the features into a vector
+            print(feature) 
+	    # Assemble the features into a vector
             assembler = VectorAssembler(inputCols=[col for col in remaining_features if col != feature],
                                         outputCol="features")
             feature_data = assembler.transform(data)
