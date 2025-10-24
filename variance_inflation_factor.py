@@ -74,7 +74,7 @@ env_var = ['bio1', 'bio2', 'bio3', 'bio4', 'bio5', 'bio6', 'bio7', 'bio8',
            'length', 'stright', 'sinusoid', 'cum_length', 'out_dist', 'source_elev', 'outlet_elev', 
            'elev_drop', 'out_drop', 'gradient', 'flow_ltm', 'c10', 'c20', 'c30', 'c40', 'c50', 'c60', 'c70', 
            'c80', 'c90', 'c100', 'c110', 'c120', 'c130', 'c140', 'c150', 'c160', 'c170', 'c180', 
-           'c190', 'c200', 'c210', 'c220'] #flow_ltm
+           'c190', 'c200', 'c210', 'c220']
 raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).select(env_var)
 print("Number of sub-catchments:")
 print(raw_data.count())

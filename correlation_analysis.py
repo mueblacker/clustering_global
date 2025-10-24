@@ -10,8 +10,8 @@ from pyspark.sql import functions as fun
 spark = SparkSession.builder.appName("Correlation").getOrCreate()
 
 # Load the data
-reg_path  = "/home/mueblacker/Documents/Glowabio/Data/clustering_global/reg_id=39"
-#reg_path = "/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0/reg_id=178"
+#reg_path  = "/home/mueblacker/Documents/Glowabio/Data/clustering_global/reg_id=39"
+reg_path = "/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0/reg_id=178"
 env_var = ['bio1', 'bio2', 'bio3', 'bio4', 'bio5', 'bio6', 'bio7', 'bio8',
            'bio9', 'bio10', 'bio11', 'bio12', 'bio13', 'bio14', 'bio15', 'bio16', 
            'bio17', 'bio18', 'bio19', 'elev', 'flowpos', 'spi', 'sti', 'cti',
@@ -23,7 +23,7 @@ raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).selec
 print("Number of sub-catchments:")
 print(raw_data.count())
 print("Partitions:")
-print(raw_data.rdd.getNumPartitions()
+print(raw_data.rdd.getNumPartitions())
 
 # Remove columns where the standard diviaton is zero
 sums = raw_data.select(*[fun.stddev(c).alias(c) for c in raw_data.columns]).first()
@@ -67,7 +67,7 @@ corr = Correlation.corr(df, 'features', method='pearson').head()
 rows = corr[0].toArray().tolist()
 corr_df = spark.createDataFrame(rows, columns)
 
-corr_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/home/mueblacker/Documents/clustering_global/correlation/reg_id_39')
+corr_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/reg_id_178/correlation')
 
 
 #print(str(corr.replace('nan', 'NaN'))

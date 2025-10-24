@@ -1,14 +1,18 @@
 #!/bin/bash
 #SBATCH --job-name=vif
 #SBATCH --partition=day
-#SBATCH --nodes=2                # node count, change as needed
-#SBATCH --ntasks-per-node=1      # do not change, leave as 1 task per node
-#SBATCH --cpus-per-task=48       # cpu-cores per task, change as needed
-#SBATCH --mem 235G               # memory per node, change as needed
-#SBATCH --time=00:20:00
+#SBATCH --nodes=3                # node count, change as needed
+#SBATCH --ntasks-per-node=3      # do not change, leave as 1 task per node
+#SBATCH --cpus-per-task=12       # cpu-cores per task, change as needed
+#SBATCH --mem 100G               # memory per node, change as needed
+#SBATCH --time=02:00:00
 #SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/vif.%A_%a.out
 #SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/vif.%A_%a.err
 #SBATCH --mail-type=NONE
+
+# Determine settings for Spark based on requested SLURM resources
+TOTALEXEC=$(($SLURM_NNODES * $SLURM_NTASKS_PER_NODE * $SLURM_CPUS_PER_TASK))
+EXECMEM=$(($SLURM_MEM_PER_NODE / $SLURM_NTASKS_PER_NODE / 1024))
 
 # These modules are required. You may need to customize the module version
 # depending on which cluster you are on.
@@ -49,10 +53,8 @@ date
 # Customize the executor resources below to match resources requested above
 # with an allowance for spark driver overhead. Also change the path to your spark job.
 spark-submit --master ${SPARK_MASTER_URL} \
-  --executor-cores 45 \
-  --executor-memory 225G \
-  --total-executor-cores $((SLURM_CPUS_ON_NODE - 1)) \
-  --num-executors 2 \
+  --executor-memory ${EXECMEM}G \
+  --total-executor-cores ${TOTALEXEC} \
   /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/variance_inflation_factor.py
 
 date
