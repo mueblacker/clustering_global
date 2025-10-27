@@ -1,6 +1,5 @@
 # Set working directory
-setwd('/home/mueblacker/Documents/Glowabio/Data/test_data_clustering')
-
+setwd('/home/mueblacker/Documents/Glowabio/Data/clustering_global')
 
 # Functions ---------------------------------------------------------------
 
@@ -17,13 +16,26 @@ usePackage("tidyverse")
 usePackage("ggplot2")
 
 
-idx_path <- '/home/mueblacker/Documents/Glowabio/Data/test_data_clustering'
+idx_path <- '/home/mueblacker/Documents/Glowabio/Data/clustering_global'
 
 # Input data --------------------------------------------------------------
+wss_path <- list.files("/home/mueblacker/Documents/Glowabio/Data/clustering_global/reg_id_178/wss",
+                   pattern = ".csv$", full.names = TRUE)
+wss_1 <- fread(wss_path[1])
+wss_2 <- fread(wss_path[2])
 
-wss <- fread(paste0(idx_path, '/wss/wss_basins.csv'))
+wss <- wss_1 %>% 
+  add_row(wss_2) %>% 
+  arrange(k)
 
-sil <- fread(paste0(idx_path, '/sil_score/sil_score.csv'))
+sil_path <- list.files("/home/mueblacker/Documents/Glowabio/Data/clustering_global/reg_id_178/sil",
+                       pattern = ".csv$", full.names = TRUE)
+sil_1 <- fread(sil_path[1])
+sil_2 <- fread(sil_path[2])
+
+sil <- sil_1 %>% 
+  add_row(sil_2) %>% 
+  arrange(k)
 
 #Join tables
 idx_tbl <- inner_join(wss, sil, by = 'k') %>% 
