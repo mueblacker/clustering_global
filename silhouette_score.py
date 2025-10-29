@@ -16,6 +16,8 @@ selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_gl
 columns = selected_features.rdd.map(lambda x: x[0]).collect()
 
 raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).select(columns)
+# Drop rows with NULL values
+raw_data = raw_data.na.drop()
 
 
 # Remove land use classes with 0% in all sub-catchments
@@ -32,7 +34,7 @@ raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).selec
 assembler = VectorAssembler(inputCols = columns,
                             outputCol = 'features')
 
-df = assembler.transform(raw_data)
+df = assembler.transform(raw_data).select('features')
 
 # Code if the data needs to be scaled
 #scaler = StandardScaler(inputCol='features', 
