@@ -11,17 +11,14 @@ from pyspark.ml.evaluation import ClusteringEvaluator
 
 
 # Load the data
-# raw_data = spark.read.csv("/vast/palmer/scratch/sbsc/mu78/test_data/basin_59_1173421.csv", header = True, inferSchema = True)
-# raw_data = spark.read.csv("/home/mueblacker/Documents/Glowabio/Code/pyspark/basin_59_1173421.csv", header = True, inferSchema = True)
-raw_data = spark.read.csv("/vast/palmer/scratch/sbsc/mu78/test_data/basins.csv", header = True, inferSchema = True)
-
-selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/test_data/sman_uncorr_envVar_00_000006_screening.csv', header = True, inferSchema = True)
+reg_path = '/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0/reg_id=178'
+selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/reg_id_178/correlation/uncorr_envVar.csv', header = True, inferSchema = True)
 columns = selected_features.rdd.map(lambda x: x[0]).collect()
+columns.append('subc_id')
 
-# Remove land use classes with 0% in all sub-catchments
-# sums = raw_data.select(*[fun.sum(c).alias(c) for c in raw_data.columns]).first()
-# cols_to_dop = [c for c in sums.asDict() if sums[c] == 0]
-# raw_data = raw_data.drop(*cols_to_dop)
+raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).select(columns)
+
+
 
 # Create a subset
 # raw_data = raw_data.sample(fraction=0.1)
@@ -31,35 +28,34 @@ columns = selected_features.rdd.map(lambda x: x[0]).collect()
 assembler = VectorAssembler(inputCols = columns,
                             outputCol = 'features')
 
-scaler = StandardScaler(inputCol = 'features', 
-                        outputCol = 'scaled_features', 
-                        withStd = True, 
-                        withMean = True)
+#scaler = StandardScaler(inputCol = 'features', 
+#                        outputCol = 'scaled_features', 
+#                        withStd = True, 
+#                        withMean = True)
 
-pca = PCA(k = 28, 
-          inputCol = 'scaled_features', 
+pca = PCA(k = 22, 
+          inputCol = 'features', 
           outputCol = 'pca_features')
 
-pipeline = Pipeline(stages=[assembler, scaler, pca])
+pipeline = Pipeline(stages=[assembler, pca])
 pipeline_model = pipeline.fit(raw_data)
 pipeline_model.transform(raw_data)
 
-pca_data = pipeline_model.transform(raw_data).select('subcID', 
+pca_data = pipeline_model.transform(raw_data).select('subc_id', 
                                                      'features', 
-                                                     'scaled_features', 
                                                      'pca_features')
 
 
 
 # Trains a k-means model.
-kmeans = KMeans(featuresCol = 'scaled_features', k = 30).setInitSteps(100).setMaxIter(500).setSeed(256)
+kmeans = KMeans(featuresCol = 'features', k = 26).setInitSteps(100).setMaxIter(500).setSeed(256)
 model = kmeans.fit(pca_data)
 predictions = model.transform(pca_data)
-clusters = predictions.select('subcID', 'prediction')
+clusters = predictions.select('subc_id', 'prediction')
 # Save clusters as csv
-clusters.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/test_data/cluster_prediction')
+clusters.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/reg_id_178/cluster_prediction')
 # Save kmeans model
-model.save('/vast/palmer/scratch/sbsc/mu78/test_data/kmeans_model')
+model.save('/vast/palmer/scratch/sbsc/mu78/clustering_global/reg_id_178/kmeans_model')
 
 
 spark.stop()

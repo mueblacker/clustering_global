@@ -1,14 +1,18 @@
 #!/bin/bash
-#SBATCH --job-name=sil_score
+#SBATCH --job-name=sil
 #SBATCH --partition=day
-#SBATCH --nodes=1                # node count, change as needed
-#SBATCH --ntasks-per-node=1      # do not change, leave as 1 task per node
-#SBATCH --cpus-per-task=36       # cpu-cores per task, change as needed
-#SBATCH --mem 180G               # memory per node, change as needed
-#SBATCH --time=00:20:00
-#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/test_spark.%A_%a.out
-#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/test_spark.%A_%a.err
+#SBATCH --nodes=4                # node count, change as needed
+#SBATCH --ntasks-per-node=2      # do not change, leave as 1 task per node
+#SBATCH --cpus-per-task=16       # cpu-cores per task, change as needed
+#SBATCH --mem 150G               # memory per node, change as needed
+#SBATCH --time=04:00:00
+#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/sil.%A_%a.out
+#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/sil.%A_%a.err
 #SBATCH --mail-type=NONE
+
+# Determine settings for Spark based on requested SLURM resources
+TOTALEXEC=$(($SLURM_NNODES * $SLURM_NTASKS_PER_NODE * $SLURM_CPUS_PER_TASK))
+EXECMEM=$(($SLURM_MEM_PER_NODE / $SLURM_NTASKS_PER_NODE / 1024))
 
 # These modules are required. You may need to customize the module version
 # depending on which cluster you are on.
@@ -44,12 +48,14 @@ Use a Browser on your local machine to go to:
 localhost:${web_port} 
 "
 
+date
 
 # Customize the executor resources below to match resources requested above
 # with an allowance for spark driver overhead. Also change the path to your spark job.
 spark-submit --master ${SPARK_MASTER_URL} \
-  --executor-cores 30 \
-  --executor-memory 150G \
-  --total-executor-cores $((SLURM_CPUS_ON_NODE - 1)) \
+  --executor-memory ${EXECMEM}G \
+  --total-executor-cores ${TOTALEXEC} \
   /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/silhouette_score.py
 
+
+date
