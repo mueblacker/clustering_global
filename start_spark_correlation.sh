@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=corr
 #SBATCH --partition=day
-#SBATCH --nodes=3                # node count, change as needed
+#SBATCH --nodes=4                # node count, change as needed
 #SBATCH --ntasks-per-node=2      # do not change, leave as 1 task per node
 #SBATCH --cpus-per-task=12       # cpu-cores per task, change as needed
-#SBATCH --mem 70G               # memory per node, change as needed
-#SBATCH --time=00:10:00
+#SBATCH --mem 100G               # memory per node, change as needed
+#SBATCH --time=02:00:00
 #SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/corr.%A_%a.out
 #SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/corr.%A_%a.err
 #SBATCH --mail-type=NONE
@@ -53,7 +53,7 @@ date
 # Customize the executor resources below to match resources requested above
 # with an allowance for spark driver overhead. Also change the path to your spark job.
 spark-submit --master ${SPARK_MASTER_URL} \
-  --executor-memory 65G \
+  --executor-memory ${EXECMEM}G \
   --total-executor-cores ${TOTALEXEC} \
   /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/correlation_analysis.py
 

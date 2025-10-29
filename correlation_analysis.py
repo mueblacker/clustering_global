@@ -11,7 +11,7 @@ spark = SparkSession.builder.appName("Correlation").getOrCreate()
 
 # Load the data
 #reg_path  = "/home/mueblacker/Documents/Glowabio/Data/clustering_global/reg_id=39"
-reg_path = "/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0/reg_id=178"
+reg_path = "/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0"
 env_var = ['bio1', 'bio2', 'bio3', 'bio4', 'bio5', 'bio6', 'bio7', 'bio8',
            'bio9', 'bio10', 'bio11', 'bio12', 'bio13', 'bio14', 'bio15', 'bio16', 
            'bio17', 'bio18', 'bio19', 'elev', 'flowpos', 'spi', 'sti', 'cti',
@@ -67,7 +67,7 @@ corr = Correlation.corr(df, 'features', method='pearson').head()
 rows = corr[0].toArray().tolist()
 corr_df = spark.createDataFrame(rows, columns)
 
-corr_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/reg_id_178/correlation')
+corr_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/correlation')
 
 
 #print(str(corr.replace('nan', 'NaN'))

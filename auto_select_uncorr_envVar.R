@@ -1,5 +1,5 @@
 # Set working directory
-setwd("/my/working/directory/data")
+setwd("/home/mu78/palmer_scratch/clustering_global")
 
 # Functions ---------------------------------------------------------------
 
@@ -13,14 +13,13 @@ usePackage <- function(p){
 # Libraries ---------------------------------------------------------------
 
 # Load libraries
+usePackage("dplyr")
 usePackage("data.table")
-usePackage("tidyverse")
-
 
 # Load data  -------------------------------------------------------------
 
 # Path to correlation dataset
-path <- list.files("/home/mueblacker/Documents/Glowabio/Data/clustering_global/correlation",
+path <- list.files("/home/mu78/palmer_scratch/clustering_global/south_america/correlation",
                    pattern = ".csv$", full.names = TRUE)
 
 corr_matrix <- fread(path, header = TRUE)
@@ -58,8 +57,7 @@ uncorr_enVar <- as.data.table(corr_matrix$term)
 
 # Selection output ---------------------------------------------------------
 
-fwrite(uncorr_enVar, paste0(vset01_path, "/correlation/sman_uncorr_envVar_", 
-                                 cunit,"_", basinID,"_", vset01, ".csv"))
+fwrite(uncorr_enVar, "/home/mu78/palmer_scratch/clustering_global/south_america/correlation/uncorr_envVar_south_america.csv")
 
 
 # Exit R ------------------------------------------------------------------
