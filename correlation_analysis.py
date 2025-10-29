@@ -18,7 +18,7 @@ env_var = ['bio1', 'bio2', 'bio3', 'bio4', 'bio5', 'bio6', 'bio7', 'bio8',
            'length', 'stright', 'sinusoid', 'cum_length', 'out_dist', 'source_elev', 'outlet_elev', 
            'elev_drop', 'out_drop', 'gradient', 'flow_ltm', 'c10', 'c20', 'c30', 'c40', 'c50', 'c60', 'c70', 
            'c80', 'c90', 'c100', 'c110', 'c120', 'c130', 'c140', 'c150', 'c160', 'c170', 'c180', 
-           'c190', 'c200', 'c210', 'c220'] #flow_ltm
+           'c190', 'c200', 'c210', 'c220'] 
 raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).select(env_var)
 print("Number of sub-catchments:")
 print(raw_data.count())
@@ -33,14 +33,19 @@ print("Removed columns with stddev == 0:")
 print(cols_to_drop)
 
 
-# Remove columns with NaN or NULL values
+# Print columns with NaN or NULL values
 na_counts = raw_data.select([count(when(isnan(c) | col(c).isNull(), c)).alias(c) for c in raw_data.columns]).first()
 cols_to_drop = [c for c in na_counts.asDict() if na_counts[c] > 0]
-raw_data = raw_data.drop(*cols_to_drop)
-print("Removed columns with NaN or NULL values:")
+# raw_data = raw_data.drop(*cols_to_drop)
+print("Columns with NaN or NULL values:")
 print(cols_to_drop)
 
+# Remove sub-catchments (rows) with NaN or NULL values
+print("Removed number of rows with NaN or NULL values:")
+print(raw_data.na.drop().count())
+raw_data = raw_data.na.drop()
 
+# Get column names
 columns = raw_data.columns
 
 
@@ -48,7 +53,7 @@ columns = raw_data.columns
 assembler = VectorAssembler(inputCols = columns,
                             outputCol = 'features')
 
-df = assembler.transform(raw_data)
+df = assembler.transform(raw_data).select('features')
 
 # Code if the data needs to be scaled
 #scaler = StandardScaler(inputCol='features', 
