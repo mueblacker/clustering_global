@@ -11,12 +11,14 @@ from pyspark.ml.evaluation import ClusteringEvaluator
 
 
 # Load the data
-reg_path = '/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0/reg_id=178'
-selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/reg_id_178/correlation/uncorr_envVar.csv', header = True, inferSchema = True)
-columns = selected_features.rdd.map(lambda x: x[0]).collect()
-columns_to_load = columns.append('subc_id', 'basin_id')
+reg_path = '/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0'
+uncorr_envVar = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america_wo_flo1k/correlation/uncorr_envVar_south_america.csv', header = True, inferSchema = True)
+columns = uncorr_envVar.rdd.map(lambda x: x[0]).collect()
+columns.append('subc_id')
+columns.append('basin_id')
+columns.append('reg_id')
 
-raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).select(columns_to_load)
+raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).select(columns)
 # Drop rows with NULL values
 raw_data = raw_data.na.drop()
 
@@ -26,7 +28,11 @@ raw_data = raw_data.na.drop()
 
 
 # Merge multiple columns into a vector column, scale the data and run a pca
-assembler = VectorAssembler(inputCols = columns,
+
+selected_features = columns[0:len(columns)-3]
+print("Selected features:")
+print(selected_features)
+assembler = VectorAssembler(inputCols = selected_features,
                             outputCol = 'features')
 
 #scaler = StandardScaler(inputCol = 'features', 
@@ -34,7 +40,7 @@ assembler = VectorAssembler(inputCols = columns,
 #                        withStd = True, 
 #                        withMean = True)
 
-pca = PCA(k = 22, 
+pca = PCA(k = 26, 
           inputCol = 'features', 
           outputCol = 'pca_features')
 
@@ -43,26 +49,25 @@ pipeline_model = pipeline.fit(raw_data)
 pipeline_model.transform(raw_data)
 
 pca_data = pipeline_model.transform(raw_data).select('reg_id',
-						       'basin_id',
-						       'subc_id',
+						     'basin_id',
+						     'subc_id',
                                                      'features', 
                                                      'pca_features')
 
 
 
 # Trains a k-means model.
-kmeans = KMeans(featuresCol = 'features', k = 26).setInitSteps(100).setMaxIter(500).setSeed(256)
+kmeans = KMeans(featuresCol = 'features', k = 24).setInitSteps(100).setMaxIter(500).setSeed(256)
 model = kmeans.fit(pca_data)
 predictions = model.transform(pca_data)
 clusters = predictions.select('reg_id', 'basin_id' ,'subc_id', 'prediction')
 # Save clusters as csv
-# clusters.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/reg_id_178/cluster_prediction')
+clusters.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america_wo_flo1k/cluster_prediction_24')
 # Save parquet partition file
-clusters.write.partitionBy('reg_id').mode('overwrite').parquet('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/cluster_prediction')
+clusters.write.partitionBy('reg_id').mode('overwrite').parquet('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america_wo_flo1k/cluster_prediction_24_parquet')
 # Save kmeans model
-model.save('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/kmeans_model')
+model.save('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america_wo_flo1k/kmeans_model_24')
 
 
-spark.stop()
 
 

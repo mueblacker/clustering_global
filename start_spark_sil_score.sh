@@ -5,7 +5,7 @@
 #SBATCH --ntasks-per-node=2      # do not change, leave as 1 task per node
 #SBATCH --cpus-per-task=16       # cpu-cores per task, change as needed
 #SBATCH --mem 150G               # memory per node, change as needed
-#SBATCH --time=04:00:00
+#SBATCH --time=05:00:00
 #SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/sil.%A_%a.out
 #SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/sil.%A_%a.err
 #SBATCH --mail-type=NONE

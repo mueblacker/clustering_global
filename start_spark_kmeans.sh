@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=kmeans
 #SBATCH --partition=day
-#SBATCH --nodes=3                # node count, change as needed
+#SBATCH --nodes=4                # node count, change as needed
 #SBATCH --ntasks-per-node=2      # do not change, leave as 1 task per node
 #SBATCH --cpus-per-task=16       # cpu-cores per task, change as needed
 #SBATCH --mem 150G               # memory per node, change as needed

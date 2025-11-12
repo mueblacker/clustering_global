@@ -12,7 +12,7 @@ from pyspark.ml.evaluation import ClusteringEvaluator
 
 # Load the data
 reg_path = "/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0"
-selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/correlation/uncorr_envVar_south_america.csv', header = True, inferSchema = True)
+selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america_wo_flo1k/correlation/uncorr_envVar_south_america.csv', header = True, inferSchema = True)
 columns = selected_features.rdd.map(lambda x: x[0]).collect()
 
 raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).select(columns)
@@ -70,7 +70,7 @@ evaluator = ClusteringEvaluator(predictionCol = 'prediction',
                                 metricName = 'silhouette', 
                                 distanceMeasure = 'squaredEuclidean')
 
-k = [2, 5, 10, 20, 25, 30, 40]
+k = [2, 5, 10, 15, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 50, 60, 70]
 for i in k:
     kmeans = KMeans(featuresCol = 'pca_features', k = i).setInitSteps(100).setMaxIter(500).setSeed(256)
     model = kmeans.fit(pca_data)
@@ -88,7 +88,7 @@ sil_list = [(k[i], silhouette_score[i]) for i in range(len(k))]
 sil_df = spark.createDataFrame(sil_list, ['k', 'sil'])
 wss_df = spark.createDataFrame(within_sum_of_square)
 #df.write.option("header",True).csv("/home/mueblacker/Documents/Glowabio/Code/pyspark/sil_score.csv")
-sil_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/sil')
-wss_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/wss')
+sil_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america_wo_flo1k/sil')
+wss_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america_wo_flo1k/wss')
 
-stop.spark()
+

@@ -15,8 +15,8 @@ reg_path = "/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parque
 env_var = ['bio1', 'bio2', 'bio3', 'bio4', 'bio5', 'bio6', 'bio7', 'bio8',
            'bio9', 'bio10', 'bio11', 'bio12', 'bio13', 'bio14', 'bio15', 'bio16', 
            'bio17', 'bio18', 'bio19', 'elev', 'flowpos', 'spi', 'sti', 'cti',
-           'length', 'stright', 'sinusoid', 'cum_length', 'out_dist', 'source_elev', 'outlet_elev', 
-           'elev_drop', 'out_drop', 'gradient', 'flow_ltm', 'c10', 'c20', 'c30', 'c40', 'c50', 'c60', 'c70', 
+           'sinusoid', 'cum_length', 'out_dist', 'gradient', 'flow_ltm', 'c10', 
+	   'c20', 'c30', 'c40', 'c50', 'c60', 'c70', 
            'c80', 'c90', 'c100', 'c110', 'c120', 'c130', 'c140', 'c150', 'c160', 'c170', 'c180', 
            'c190', 'c200', 'c210', 'c220'] 
 raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).select(env_var)
@@ -41,7 +41,7 @@ print("Columns with NaN or NULL values:")
 print(cols_to_drop)
 
 # Remove sub-catchments (rows) with NaN or NULL values
-print("Removed number of rows with NaN or NULL values:")
+print("Remaining number of sub-catchment after removing rows with NaN or NULL values:")
 print(raw_data.na.drop().count())
 raw_data = raw_data.na.drop()
 
@@ -66,7 +66,9 @@ df = assembler.transform(raw_data).select('features')
 #scaled_data = pipeline_model.transform(raw_data).select('features',
 #                                                        'scaled_features')
 
-#df.cach()
+#df = df.cache()
+
+# Correlation analysis
 
 corr = Correlation.corr(df, 'features', method='pearson').head()
 rows = corr[0].toArray().tolist()

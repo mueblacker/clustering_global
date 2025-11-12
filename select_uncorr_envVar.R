@@ -1,5 +1,5 @@
 # Set working directory
-setwd("/vast/palmer/scratch/sbsc/mu78/clustering_global/reg_id_178")
+setwd("/vast/palmer/scratch/sbsc/mu78/clustering_global")
 
 # Functions ---------------------------------------------------------------
 
@@ -14,22 +14,28 @@ usePackage <- function(p){
 
 # Load libraries
 usePackage("data.table")
-usePackage("tidyverse")
+usePackage("dplyr")
 
 
 # Load data  -------------------------------------------------------------
 
 # Path to correlation dataset
-path <- list.files("/vast/palmer/scratch/sbsc/mu78/clustering_global/reg_id_178/correlation",
+path <- list.files("/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/correlation",
                    pattern = ".csv$", full.names = TRUE)
 
-corr_matrix <- fread(path, header = TRUE)
+corr_matrix <- fread(path[1], header = TRUE)
 
 corr_matrix$term <- names(corr_matrix)
 
 # Remove correlated variables ---------------------------------------------
+ranking = c('c10', 'c20', 'c30', 'c40', 'c50', 'c60', 'c70',
+           'c80', 'c90', 'c100', 'c110', 'c120', 'c130', 'c140', 'c150', 'c160', 'c170', 'c180',
+           'c190', 'c200', 'c210', 'c220', 'elev', 'flow_ltm', 'spi', 'sti', 'cti', 'flowpos', 'bio1',
+	   'bio2', 'bio3', 'bio4', 'bio5', 'bio6', 'bio7', 'bio8',
+           'bio9', 'bio10', 'bio11', 'bio12', 'bio13', 'bio14', 'bio15', 'bio16', 
+           'bio17', 'bio18', 'bio19', 'gradient', 'cum_length', 'out_dist', 'sinusoid') 
 
-ranking <- corr_matrix$term
+#ranking <- corr_matrix$term
 
 # For Spearman's rank correlation
 # Change NAs into zeros
@@ -58,7 +64,7 @@ uncorr_enVar <- as.data.table(corr_matrix$term)
 
 # Selection output ---------------------------------------------------------
 
-fwrite(uncorr_enVar, paste0("/vast/palmer/scratch/sbsc/mu78/clustering_global/reg_id_178/correlation/uncorr_envVar.csv"))
+fwrite(uncorr_enVar, paste0("/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/correlation/uncorr_envVar_south_america.csv"))
 
 
 # Exit R ------------------------------------------------------------------
