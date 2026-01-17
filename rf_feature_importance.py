@@ -12,7 +12,7 @@ from pyspark.sql.functions import col, min, max
 
 # Load the data
 reg_path = '/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0'
-uncorr_envVar = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america_wo_flo1k/correlation/uncorr_envVar_south_america.csv', header = True, inferSchema = True)
+uncorr_envVar = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/correlation/uncorr_envVar_world.csv', header = True, inferSchema = True)
 columns = uncorr_envVar.rdd.map(lambda x: x[0]).collect()
 columns.append('subc_id')
 columns.append('basin_id')
@@ -22,15 +22,21 @@ raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).selec
 raw_data = raw_data.na.drop()
 
 # Load cluster prediction
-prediction = spark.read.parquet('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america_wo_flo1k/cluster_prediction_24_parquet', header = True, inferSchema = True)
+prediction = spark.read.parquet('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/cluster_prediction_30_parquet', header = True, inferSchema = True)
 
 # Join DataFrames
 df = prediction.join(raw_data, ['subc_id', 'basin_id', 'reg_id'])
 
+print('Loaded and joined datasets')
 
 #df = df.withColumn("prediction", df["prediction"].cast("double"))
 df = df.withColumnRenamed('prediction', 'clusters')
 
+fractions = {c.clusters: 0.05 for c in df.select('clusters').distinct().collect()}
+sampled = df.sampleBy('clusters', fractions, seed = 42)
+sampled = sampled.repartition(300)
+
+print('Sampled data')
 
 # Merge multiple columns into a vector column
 
@@ -44,18 +50,24 @@ assembler = VectorAssembler(
        outputCol = 'features'
    )
 
-df = assembler.transform(df)
+sampled = assembler.transform(sampled)
+
+print('Sampled 5%')
 
 # Split data into training and test data
-train_data, test_data = df.randomSplit([0.8, 0.2], seed = 256)
+train_data, test_data = sampled.randomSplit([0.8, 0.2], seed = 42)
 
+train_data = train_data.cache()
+rows = train_data.count()
+
+print('Number of rows for training:', rows)
 
 # Random Forest
 rf = RandomForestClassifier(
     featuresCol = 'features',
     labelCol = 'clusters',
-    numTrees = 500,
-    maxDepth = 20,
+    numTrees = 200,
+    maxDepth = 12,
     impurity = 'gini',
     featureSubsetStrategy = 'sqrt',
     seed = 256
@@ -63,7 +75,7 @@ rf = RandomForestClassifier(
 
 rf_model = rf.fit(train_data)
 predictions = rf_model.transform(test_data)
-predictions.select('features', 'clusters', 'prediction').show(5)
+#predictions.select('features', 'clusters', 'prediction').show(5)
 
 
 # Print the accuracy
@@ -85,11 +97,11 @@ min_fimp, max_fimp = fimp_table.select(min('importance'), max('importance')).fir
 fimp_table = fimp_table.withColumn('importance_scaled', (col('importance') - min_fimp) / (max_fimp - min_fimp))
 
 # Save feature importance
-fimp_table.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america_wo_flo1k/feature_importance_24_ntree500_depth20')
+fimp_table.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/feature_importance_30_ntree200_depth12')
 for feature, importance in zip(selected_features, feature_importances):
     print(f'Feature: {feature}, Importance: {importance:.4f}')
 
 
 # Save Model
-rf_model.save('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america_wo_flo1k/rf_model_24_ntree500_depth20')
+rf_model.save('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/rf_model_30_ntree200_depth12')
 

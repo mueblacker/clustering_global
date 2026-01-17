@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=kmeans
 #SBATCH --partition=day
-#SBATCH --nodes=4                # node count, change as needed
-#SBATCH --ntasks-per-node=2      # do not change, leave as 1 task per node
-#SBATCH --cpus-per-task=16       # cpu-cores per task, change as needed
-#SBATCH --mem 150G               # memory per node, change as needed
-#SBATCH --time=00:30:00
+#SBATCH --nodes=20                # node count, change as needed
+#SBATCH --ntasks-per-node=4      # do not change, leave as 1 task per node
+#SBATCH --cpus-per-task=8       # cpu-cores per task, change as needed
+#SBATCH --mem 300G               # memory per node, change as needed
+#SBATCH --time=02:00:00
 #SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/kmeans.%A_%a.out
 #SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/kmeans.%A_%a.err
 #SBATCH --mail-type=NONE

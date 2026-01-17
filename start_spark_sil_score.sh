@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=sil
 #SBATCH --partition=day
-#SBATCH --nodes=4                # node count, change as needed
-#SBATCH --ntasks-per-node=2      # do not change, leave as 1 task per node
-#SBATCH --cpus-per-task=16       # cpu-cores per task, change as needed
+#SBATCH --nodes=3                # node count, change as needed
+#SBATCH --ntasks-per-node=8      # do not change, leave as 1 task per node
+#SBATCH --cpus-per-task=4       # cpu-cores per task, change as needed
 #SBATCH --mem 150G               # memory per node, change as needed
-#SBATCH --time=05:00:00
-#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/sil.%A_%a.out
-#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/sil.%A_%a.err
+#SBATCH --time=03:00:00
+#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/sil_sample_0.1_seed256.%A_%a.out
+#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/sil_sample_0.1_seed256.%A_%a.err
 #SBATCH --mail-type=NONE
 
 # Determine settings for Spark based on requested SLURM resources

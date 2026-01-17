@@ -20,7 +20,7 @@ usePackage("dplyr")
 # Load data  -------------------------------------------------------------
 
 # Path to correlation dataset
-path <- list.files("/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/correlation",
+path <- list.files("/vast/palmer/scratch/sbsc/mu78/clustering_global/world/correlation",
                    pattern = ".csv$", full.names = TRUE)
 
 corr_matrix <- fread(path[1], header = TRUE)
@@ -64,7 +64,7 @@ uncorr_enVar <- as.data.table(corr_matrix$term)
 
 # Selection output ---------------------------------------------------------
 
-fwrite(uncorr_enVar, paste0("/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/correlation/uncorr_envVar_south_america.csv"))
+fwrite(uncorr_enVar, paste0("/vast/palmer/scratch/sbsc/mu78/clustering_global/world/correlation/uncorr_envVar_america.csv"))
 
 
 # Exit R ------------------------------------------------------------------

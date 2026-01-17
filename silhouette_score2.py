@@ -12,7 +12,7 @@ from pyspark.ml.evaluation import ClusteringEvaluator
 
 # Load the data
 reg_path = "/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0"
-selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/correlation/uncorr_envVar_south_america.csv', header = True, inferSchema = True)
+selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/correlation/uncorr_envVar_world.csv', header = True, inferSchema = True)
 columns = selected_features.rdd.map(lambda x: x[0]).collect()
 
 raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).select(columns)
@@ -47,7 +47,7 @@ df = assembler.transform(raw_data).select('features')
 #scaled_data = pipeline_model.transform(raw_data).select('features',
 #                                                        'scaled_features')
 
-i = 15
+i = 31
 var = 0.5
 while var < 0.98:
     k = i
@@ -57,7 +57,9 @@ while var < 0.98:
     var = sum(pca_model.explainedVariance).item()
 
 
+print(pca_model.explainedVariance)
 print('PCA =', i, 'Var =', var)
+
 pca_data = pca_model.transform(df)
 
 
@@ -70,7 +72,7 @@ evaluator = ClusteringEvaluator(predictionCol = 'prediction',
                                 metricName = 'silhouette', 
                                 distanceMeasure = 'squaredEuclidean')
 
-k=[21, 22, 23, 24, 26, 27, 28, 29]
+k = [80, 90, 100, 110, 120]
 for i in k:
     kmeans = KMeans(featuresCol = 'pca_features', k = i).setInitSteps(100).setMaxIter(500).setSeed(256)
     model = kmeans.fit(pca_data)
@@ -80,6 +82,7 @@ for i in k:
     silhouette_score.append(score)
     print('Silhouette Score for k =', i,'is', score)
     within_sum_of_square.append({"k": i, 'wss': wss})
+    print('WSS for k =', i, 'is', wss)
  
 
 
@@ -88,6 +91,7 @@ sil_list = [(k[i], silhouette_score[i]) for i in range(len(k))]
 sil_df = spark.createDataFrame(sil_list, ['k', 'sil'])
 wss_df = spark.createDataFrame(within_sum_of_square)
 #df.write.option("header",True).csv("/home/mueblacker/Documents/Glowabio/Code/pyspark/sil_score.csv")
-sil_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/sil')
-wss_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/south_america/wss')
+sil_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/sil2')
+wss_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/wss2')
+
 

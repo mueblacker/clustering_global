@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=corr
 #SBATCH --partition=day
-#SBATCH --nodes=4                # node count, change as needed
+#SBATCH --nodes=20                # node count, change as needed
 #SBATCH --ntasks-per-node=2      # do not change, leave as 1 task per node
-#SBATCH --cpus-per-task=12       # cpu-cores per task, change as needed
-#SBATCH --mem 100G               # memory per node, change as needed
-#SBATCH --time=00:10:00
+#SBATCH --cpus-per-task=17       # cpu-cores per task, change as needed
+#SBATCH --mem 170G               # memory per node, change as needed
+#SBATCH --time=03:00:00
 #SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/corr.%A_%a.out
 #SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/corr.%A_%a.err
 #SBATCH --mail-type=NONE
