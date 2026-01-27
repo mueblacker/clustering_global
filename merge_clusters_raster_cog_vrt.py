@@ -1,3 +1,8 @@
+# Script to generate a Cloud optimized GeoTiff
+# Merge and create a VRT
+
+# Load packages --------------------------------------------------
+
 import os
 import glob
 import random
@@ -6,24 +11,29 @@ import rasterio
 from osgeo import gdal
 from rasterio.enums import ColorInterp
 
-# ---------------- CONFIG ----------------
-input_dir = "/data/mschuerz/clustering_global/world/cluster_rasters"   # input TIFFs (can be network-mounted)
+# Settings -------------------------------------------------------
+
+# Define directories
+input_dir = "/data/mschuerz/clustering_global/world/cluster_rasters"   
 output_cog = "/data/mschuerz/clustering_global/world/world_clusters30_cog.tif"
 tmp_vrt = "/data/mschuerz/clustering_global/world/merged.vrt"
-compression = "ZSTD"  # Compression method for COG
+
+# Define output settings 
+compression = "ZSTD" 
 block_size = 512
 overview_levels = [2, 4, 8, 16, 32]
 nodata_value = 0
-# ----------------------------------------
 
 
-# ---------------- Step 1: Collect input files ----------------
+# Collect input files ----------------------------------------------
 tif_files = sorted(glob.glob(os.path.join(input_dir, "*.tif")))
 if not tif_files:
     raise RuntimeError("No .tif files found in input directory!")
 
-# ---------------- Step 2: Build VRT (memory-efficient) ----------------
-print("➡ Building VRT...")
+# Build VRT --------------------------------------------------------
+
+print("Building VRT...")
+
 vrt_options = gdal.BuildVRTOptions(
     resolution="average",
     separate=False,
@@ -31,16 +41,16 @@ vrt_options = gdal.BuildVRTOptions(
 )
 gdal.BuildVRT(tmp_vrt, tif_files, options=vrt_options)
 
-# ---------------- Step 3: Convert VRT to Cloud Optimized GeoTIFF (COG) with uint8 ----------------
-print("➡ Creating Cloud Optimized GeoTIFF (uint8)...")
+# Convert VRT to Cloud Optimized GeoTIFF (COG) with uint8 ----------
+
+print("Creating Cloud Optimized GeoTIFF (uint8)...")
 
 translate_options = gdal.TranslateOptions(
     format="COG",
-    outputType=gdal.GDT_Byte,  # Convert to uint8 (1 byte per pixel)
+    outputType=gdal.GDT_Byte,  # Convert to uint8 
     creationOptions=[
         f"COMPRESS={compression}",
         "BIGTIFF=IF_SAFER",  # For larger datasets
-        # Removed PREDICTOR option as it's not necessary for uint8
     ],
     noData=nodata_value
 )
@@ -51,8 +61,9 @@ gdal.Translate(
     options=translate_options
 )
 
-# ---------------- Step 4: Add color table ----------------
-print("➡ Adding color table...")
+# Add color table ----------------------------------------------------
+
+print("Adding color table...")
 
 def consistent_color(val):
     # Generate consistent random RGB color for each unique value
@@ -78,12 +89,14 @@ with rasterio.open(output_cog, "r+") as ds:
     ds.nodata = nodata_value
     ds.colorinterp = [ColorInterp.paletted]
 
-# ---------------- Step 5: Build overviews ----------------
-print("➡ Building overviews...")
+#  Build overviews ---------------------------------------------------
+
+print("Building overviews...")
+
 with rasterio.open(output_cog, "r+") as ds:
     ds.build_overviews(overview_levels, resampling=rasterio.enums.Resampling.nearest)
 
 # Cleanup temporary VRT file
 os.remove(tmp_vrt)
 
-print(f"✅ Cloud Optimized GeoTIFF (uint8) created: {output_cog}")
+print(f"Cloud Optimized GeoTIFF created: {output_cog}")
