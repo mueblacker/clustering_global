@@ -10,7 +10,7 @@ from pyspark.ml.feature import VectorAssembler, StandardScaler, PCA
 
 # Load the data
 reg_path = "/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0"
-selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/correlation/uncorr_envVar_world.csv', header = True, inferSchema = True)
+selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/correlation/uncorr_envVar_world.csv', header = True, inferSchema = True)
 columns = selected_features.rdd.map(lambda x: x[0]).collect()
 columns.append('subc_id')
 columns.append('basin_id')

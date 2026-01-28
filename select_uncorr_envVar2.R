@@ -1,5 +1,5 @@
 # Set working directory
-setwd("/home/mu78/palmer_scratch/clustering_global")
+setwd("/vast/palmer/scratch/sbsc/mu78/clustering_global")
 
 # Functions ---------------------------------------------------------------
 
@@ -13,22 +13,27 @@ usePackage <- function(p){
 # Libraries ---------------------------------------------------------------
 
 # Load libraries
-usePackage("dplyr")
 usePackage("data.table")
+usePackage("dplyr")
+
 
 # Load data  -------------------------------------------------------------
 
 # Path to correlation dataset
-path <- list.files("/home/mu78/palmer_scratch/clustering_global/south_america/correlation",
+path <- list.files("/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/correlation",
                    pattern = ".csv$", full.names = TRUE)
 
-corr_matrix <- fread(path, header = TRUE)
+corr_matrix <- fread(path[1], header = TRUE)
 
 corr_matrix$term <- names(corr_matrix)
 
 # Remove correlated variables ---------------------------------------------
+ranking = c('elev', 'flow_ltm', 'spi', 'sti', 'cti', 'flowpos', 'bio1',
+	   'bio2', 'bio3', 'bio4', 'bio5', 'bio6', 'bio7', 'bio8',
+           'bio9', 'bio10', 'bio11', 'bio12', 'bio13', 'bio14', 'bio15', 'bio16', 
+           'bio17', 'bio18', 'bio19', 'gradient', 'cum_length', 'out_dist', 'sinusoid') 
 
-ranking <- corr_matrix$term
+#ranking <- corr_matrix$term
 
 # For Spearman's rank correlation
 # Change NAs into zeros
@@ -57,12 +62,9 @@ uncorr_enVar <- as.data.table(corr_matrix$term)
 
 # Selection output ---------------------------------------------------------
 
-fwrite(uncorr_enVar, "/home/mu78/palmer_scratch/clustering_global/south_america/correlation/uncorr_envVar_south_america.csv")
+fwrite(uncorr_enVar, paste0("/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/correlation/uncorr_envVar_america.csv"))
 
 
 # Exit R ------------------------------------------------------------------
 
 quit(save ="no")
-
-
-

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=rf
 #SBATCH --partition=day
-#SBATCH --nodes=7                # node count, change as needed
+#SBATCH --nodes=3                # node count, change as needed
 #SBATCH --ntasks-per-node=1      # do not change, leave as 1 task per node
 #SBATCH --cpus-per-task=16       # cpu-cores per task, change as needed
 #SBATCH --mem 50G               # memory per node, change as needed
@@ -97,7 +97,7 @@ spark-submit \
   --conf spark.sql.shuffle.partitions=300 \
   --conf spark.driver.memory=12g \
   --conf spark.driver.memoryOverhead=4g \
- /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/rf_feature_importance.py
+ /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/rf_predict_cluster_sa.py
 
 
 date

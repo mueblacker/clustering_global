@@ -15,10 +15,11 @@ reg_path = "/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parque
 env_var = ['bio1', 'bio2', 'bio3', 'bio4', 'bio5', 'bio6', 'bio7', 'bio8',
            'bio9', 'bio10', 'bio11', 'bio12', 'bio13', 'bio14', 'bio15', 'bio16', 
            'bio17', 'bio18', 'bio19', 'elev', 'flowpos', 'spi', 'sti', 'cti',
-           'sinusoid', 'cum_length', 'out_dist', 'gradient', 'flow_ltm', 'c10', 
-	   'c20', 'c30', 'c40', 'c50', 'c60', 'c70', 
-           'c80', 'c90', 'c100', 'c110', 'c120', 'c130', 'c140', 'c150', 'c160', 'c170', 'c180', 
-           'c190', 'c200', 'c210', 'c220'] 
+           'sinusoid', 'cum_length', 'out_dist', 'gradient', 'flow_ltm']
+	   #'c10', 
+	   #'c20', 'c30', 'c40', 'c50', 'c60', 'c70', 
+           #'c80', 'c90', 'c100', 'c110', 'c120', 'c130', 'c140', 'c150', 'c160', 'c170', 'c180', 
+           #'c190', 'c200', 'c210', 'c220'] 
 raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).select(env_var)
 print("Number of sub-catchments:")
 print(raw_data.count())
@@ -74,7 +75,7 @@ corr = Correlation.corr(df, 'features', method='pearson').head()
 rows = corr[0].toArray().tolist()
 corr_df = spark.createDataFrame(rows, columns)
 
-corr_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/correlation')
+corr_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/correlation')
 
 
 #print(str(corr.replace('nan', 'NaN'))
