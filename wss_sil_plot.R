@@ -19,23 +19,23 @@ usePackage("ggplot2")
 idx_path <- '/home/mueblacker/Documents/Glowabio/Data/clustering_global'
 
 # Input data --------------------------------------------------------------
-wss_path <- list.files("/home/mueblacker/Documents/Glowabio/Data/clustering_global/reg_id_178/wss",
+wss_path <- list.files("/home/mueblacker/Documents/Glowabio/Data/clustering_global/world/wss_0.25_seed3",
                    pattern = ".csv$", full.names = TRUE)
 wss_1 <- fread(wss_path[1])
-wss_2 <- fread(wss_path[2])
+#wss_2 <- fread(wss_path[2])
 
-wss <- wss_1 %>% 
-  add_row(wss_2) %>% 
-  arrange(k)
-
-sil_path <- list.files("/home/mueblacker/Documents/Glowabio/Data/clustering_global/reg_id_178/sil",
+wss <- wss_1 #%>% 
+  #add_row(wss_2) %>% 
+  #arrange(k)
+#
+sil_path <- list.files("/home/mueblacker/Documents/Glowabio/Data/clustering_global/world/sil_0.25_seed3",
                        pattern = ".csv$", full.names = TRUE)
 sil_1 <- fread(sil_path[1])
-sil_2 <- fread(sil_path[2])
+#sil_2 <- fread(sil_path[2])
 
-sil <- sil_1 %>% 
-  add_row(sil_2) %>% 
-  arrange(k)
+sil <- sil_1 #%>% 
+  #add_row(sil_2) %>% 
+ # arrange(k)
 
 #Join tables
 idx_tbl <- inner_join(wss, sil, by = 'k') %>% 
@@ -64,9 +64,9 @@ idx_plot <-  ggplot(idx_tbl, aes(x = k, y = value)) +
                   strip.text.y = element_text(size = rel(1.1))) +
              xlab("Number of clusters") 
 
-# Create filenames --------------------------------------------------------
+# Create filenames --------------------------------------------------------s
 
-filename_idx <- paste0("indices.png")
+filename_idx <- paste0("indices_global_0.25_seed3.png")
 
 
 # Save output -------------------------------------------------------------

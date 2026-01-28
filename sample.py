@@ -5,7 +5,7 @@ spark = SparkSession.builder.appName('sample').getOrCreate()
 # Load libraries
 from pyspark.ml import Pipeline
 from pyspark.ml.pipeline import PipelineModel
-from pyspark.ml.feature import VectorAssembler, StandardScaler, PCA
+from pyspark.ml.feature import VectorAssembler, PCA
 
 
 # Load the data
@@ -20,7 +20,7 @@ print('Loaded data')
 # Drop rows with NULL values
 raw_data = raw_data.na.drop()
 print('Dropped NULL values')
-va_pca_model = PipelineModel.load('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/pca_model_32')
+va_pca_model = PipelineModel.load('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/pca_model')
 print('Loaded PCA model')
 pca_data = va_pca_model.transform(raw_data)
 print('Transformed data')
@@ -34,7 +34,7 @@ print('Number of sampled subc:', rows)
 sampled = sampled.repartition(300)
 
 # Save subset
-sampled.write.partitionBy('reg_id').mode('overwrite').parquet('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/sample_0.01_seed3_parquet')
+sampled.write.partitionBy('reg_id').mode('overwrite').parquet('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/sample_0.01_seed3_parquet')
 
 
 
