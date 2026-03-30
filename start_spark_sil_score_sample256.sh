@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=sil
+#SBATCH --job-name=sil256wl
 #SBATCH --partition=day
-#SBATCH --nodes=4                # node count, change as needed
+#SBATCH --nodes=2                # node count, change as needed
 #SBATCH --ntasks-per-node=4      # do not change, leave as 1 task per node
-#SBATCH --cpus-per-task=8       # cpu-cores per task, change as needed
-#SBATCH --mem 100G               # memory per node, change as needed
-#SBATCH --time=04:10:00
-#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/sil_sample_0.1_seed256.%A_%a.out
-#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/sil_sample_0.1_seed356.%A_%a.err
+#SBATCH --cpus-per-task=4       # cpu-cores per task, change as needed
+#SBATCH --mem 80G               # memory per node, change as needed
+#SBATCH --time=03:00:00
+#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/sil_sample_0.01_seed256.%A_%a.out
+#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/sil_sample_0.01_seed256.%A_%a.err
 #SBATCH --mail-type=NONE
 
 # Determine settings for Spark based on requested SLURM resources
@@ -55,7 +55,7 @@ date
 spark-submit --master ${SPARK_MASTER_URL} \
   --executor-memory ${EXECMEM}G \
   --total-executor-cores ${TOTALEXEC} \
-  /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/silhouette_score_sample256.py
+  /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/silhouette_score_sample256wolc.py
 
 
 date

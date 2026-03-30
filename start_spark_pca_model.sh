@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=pca
 #SBATCH --partition=day
-#SBATCH --nodes=10                # node count, change as needed
-#SBATCH --ntasks-per-node=2      # do not change, leave as 1 task per node
-#SBATCH --cpus-per-task=6       # cpu-cores per task, change as needed
-#SBATCH --mem 50G               # memory per node, change as needed
-#SBATCH --time=01:00:00
+#SBATCH --nodes=5                # node count, change as needed
+#SBATCH --ntasks-per-node=4      # do not change, leave as 1 task per node
+#SBATCH --cpus-per-task=4       # cpu-cores per task, change as needed
+#SBATCH --mem 96G               # memory per node, change as needed
+#SBATCH --time=01:30:00
 #SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/pca.%A_%a.out
 #SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/pca.%A_%a.err
 #SBATCH --mail-type=NONE

@@ -10,6 +10,6 @@
 
 module load R/4.4.1-foss-2022b
 
-R --slave -f /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/select_uncorr_envVar2.R
+R --slave -f /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/select_uncorr_envVar.R
 
 exit

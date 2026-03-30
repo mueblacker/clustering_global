@@ -75,7 +75,7 @@ corr = Correlation.corr(df, 'features', method='pearson').head()
 rows = corr[0].toArray().tolist()
 corr_df = spark.createDataFrame(rows, columns)
 
-corr_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/correlation')
+corr_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/test')
 
 
 #print(str(corr.replace('nan', 'NaN'))

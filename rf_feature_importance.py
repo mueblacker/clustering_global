@@ -12,7 +12,7 @@ from pyspark.sql.functions import col, min, max
 
 # Load the data
 reg_path = '/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0'
-uncorr_envVar = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/correlation/uncorr_envVar_world.csv', header = True, inferSchema = True)
+uncorr_envVar = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/correlation/uncorr_envVar_world_085.csv', header = True, inferSchema = True)
 columns = uncorr_envVar.rdd.map(lambda x: x[0]).collect()
 columns.append('subc_id')
 columns.append('basin_id')
@@ -22,7 +22,7 @@ raw_data = spark.read.parquet(reg_path, header = True, inferSchema = True).selec
 raw_data = raw_data.na.drop()
 
 # Load cluster prediction
-prediction = spark.read.parquet('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/cluster_prediction_30_parquet', header = True, inferSchema = True)
+prediction = spark.read.parquet('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/cluster_prediction_75_v1_parquet', header = True, inferSchema = True)
 
 # Join DataFrames
 df = prediction.join(raw_data, ['subc_id', 'basin_id', 'reg_id'])
@@ -97,11 +97,11 @@ min_fimp, max_fimp = fimp_table.select(min('importance'), max('importance')).fir
 fimp_table = fimp_table.withColumn('importance_scaled', (col('importance') - min_fimp) / (max_fimp - min_fimp))
 
 # Save feature importance
-fimp_table.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/feature_importance_30_ntree200_depth12')
+fimp_table.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/feature_importance_75_ntree200_depth12_v1')
 for feature, importance in zip(selected_features, feature_importances):
     print(f'Feature: {feature}, Importance: {importance:.4f}')
 
 
 # Save Model
-rf_model.save('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/rf_model_30_ntree200_depth12')
+rf_model.save('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/rf_model_75_ntree200_depth12_v1')
 

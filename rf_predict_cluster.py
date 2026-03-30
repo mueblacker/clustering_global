@@ -12,7 +12,7 @@ from pyspark.sql.functions import col, min, max
 
 # Load the data for prediction
 reg_path = '/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0'
-uncorr_envVar = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/correlation/uncorr_envVar_world.csv', header = True, inferSchema = True)
+uncorr_envVar = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/correlation/uncorr_envVar_world_085.csv', header = True, inferSchema = True)
 columns = uncorr_envVar.rdd.map(lambda x: x[0]).collect()
 columns.append('subc_id')
 columns.append('basin_id')
@@ -38,7 +38,7 @@ raw_data = raw_data.select(clean_cols)
 subc_to_predict = subc_to_predict.select(clean_cols)
 
 # Load cluster prediction
-prediction = spark.read.parquet('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/cluster_prediction_30_parquet', header = True, inferSchema = True)
+prediction = spark.read.parquet('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/cluster_prediction_20_v1_parquet', header = True, inferSchema = True)
 
 # Join DataFrames
 df = prediction.join(raw_data, ['subc_id', 'basin_id', 'reg_id'])
@@ -107,7 +107,7 @@ predictions = rf_model.transform(subc_to_predict)
 out = predictions.select('reg_id', 'subc_id', 'basin_id', 'prediction', 'probability')
 
 # Save prediction
-out.write.partitionBy('reg_id').mode('overwrite').parquet('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/rf_prediction_ntree200_depth12')
+out.write.partitionBy('reg_id').mode('overwrite').parquet('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/rf_prediction_20_ntree200_depth12_v1')
 
 # Feature importance
 feature_importances = rf_model.featureImportances
@@ -120,13 +120,13 @@ min_fimp, max_fimp = fimp_table.select(min('importance'), max('importance')).fir
 fimp_table = fimp_table.withColumn('importance_scaled', (col('importance') - min_fimp) / (max_fimp - min_fimp))
 
 # Save feature importance
-fimp_table.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/feature_importance_30_ntree200_depth12_wnv')
+fimp_table.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/feature_importance_20_ntree200_depth12_wnv_v2')
 for feature, importance in zip(selected_features, feature_importances):
     print(f'Feature: {feature}, Importance: {importance:.4f}')
 
 
 
 # Save Model
-rf_model.save('/vast/palmer/scratch/sbsc/mu78/clustering_global/world/rf_model_30_ntree100_depth10_wnv')
+rf_model.save('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/rf_model_20_ntree200_depth12_wnv_v2')
 
 

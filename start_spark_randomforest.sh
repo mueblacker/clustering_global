@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=rf
+#SBATCH --job-name=fimp
 #SBATCH --partition=day
-#SBATCH --nodes=3                # node count, change as needed
-#SBATCH --ntasks-per-node=1      # do not change, leave as 1 task per node
-#SBATCH --cpus-per-task=16       # cpu-cores per task, change as needed
+#SBATCH --nodes=6                # node count, change as needed
+#SBATCH --ntasks-per-node=4      # do not change, leave as 1 task per node
+#SBATCH --cpus-per-task=4       # cpu-cores per task, change as needed
 #SBATCH --mem 50G               # memory per node, change as needed
-#SBATCH --time=00:40:00
-#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/rf.%A_%a.out
-#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/rf.%A_%a.err
+#SBATCH --time=01:30:00
+#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/fimp75.%A_%a.out
+#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/fimp75.%A_%a.err
 #SBATCH --mail-type=NONE
 
 # These modules are required. You may need to customize the module version
@@ -97,7 +97,7 @@ spark-submit \
   --conf spark.sql.shuffle.partitions=300 \
   --conf spark.driver.memory=12g \
   --conf spark.driver.memoryOverhead=4g \
- /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/rf_predict_cluster_sa.py
+ /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/rf_feature_importance.py
 
 
 date

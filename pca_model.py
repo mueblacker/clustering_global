@@ -9,7 +9,7 @@ from pyspark.ml.feature import VectorAssembler, PCA
 
 # Load the data
 reg_path = "/gpfs/gibbs/pi/hydro/hydro/dataproces/ENVTABLES/regional_unit_parquet/dataset=stats_standardized_v1_0"
-selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/correlation/uncorr_envVar_world.csv', 
+selected_features = spark.read.csv('/vast/palmer/scratch/sbsc/mu78/clustering_global/world_wo_lc/correlation/uncorr_envVar_world_085.csv', 
                                    header = True, inferSchema = True)
 columns = selected_features.rdd.map(lambda x: x[0]).collect()
 
@@ -37,7 +37,7 @@ df = assembler.transform(raw_data).select('features')
 
 
 # Find the k which explains 0.98% of the data
-i = 2
+i = 10
 var = 0.5
 while var < 0.98:
     k = i
