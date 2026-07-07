@@ -14,9 +14,9 @@ from rasterio.enums import ColorInterp
 # Settings -------------------------------------------------------
 
 # Define directories
-input_dir = "/data/mschuerz/clustering_global/world/cluster_rasters"   
-output_cog = "/data/mschuerz/clustering_global/world/world_clusters30_cog.tif"
-tmp_vrt = "/data/mschuerz/clustering_global/world/merged.vrt"
+input_dir = "/data/mschuerz/clustering_global/world_v2/cluster_rasters"   
+output_cog = "/data/mschuerz/clustering_global/world_v2/world_clusters30_cog.tif"
+tmp_vrt = "/data/mschuerz/clustering_global/world_v2/merged.vrt"
 
 # Define output settings 
 compression = "ZSTD" 

@@ -11,14 +11,14 @@ from multiprocessing import Pool, cpu_count
 
 # Define directories
 subc_dir = Path("/data/mschuerz/sub_catchment_tiles")
-rules_dir = Path("/data/mschuerz/clustering_global/world/cluster_tables")
-output_dir = Path("/data/mschuerz/clustering_global/world/cluster_rasters")
+rules_dir = Path("/data/mschuerz/clustering_global/world_wo_lc/cluster_tables/clusters75")
+output_dir = Path("/data/mschuerz/clustering_global/world_wo_lc/cluster_rasters/clusters75")
 output_dir.mkdir(parents=True, exist_ok=True)
 
 # Fixed prefixes
 RASTER_PREFIX = "sub_catchment"
-RULE_PREFIX = "clusters30"
-OUTPUT_PREFIX = "clusters30"
+RULE_PREFIX = "clusters75"
+OUTPUT_PREFIX = "clusters75"
 
 # Define columns in the rule file (0-based)
 OLD_VALUE = 2
