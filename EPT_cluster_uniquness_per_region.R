@@ -9,49 +9,29 @@ library(arrow)
 
 # Load data --------------------------------------------------
 
-epto <- fread("/mnt/shared/Global_EPTO_database_clean_species_cluster_id.csv")
+epto <- fread("/mnt/shared//Global_EPTO_database_clean_species_cluster_id.csv")
 
 tiles <- open_dataset(
-  "/data/clustering_global/sub_catchment_country_parquet",
+  "/data/mschuerz/clustering_global/sub_catchment_continent_parquet",
   format = "parquet"
 )
 
 subcatchment_continent <- tiles %>%
-  select(subc_id, sub_region_name, pixel_count) %>%
   filter(subc_id %in% unique(epto$subcatchment_ID)) %>%
+  select(subc_id, continent) %>%
   collect()
-
-#Determine dominant continent
-
-subcatchment_continent <- subcatchment_continent %>%
-  group_by(subc_id, sub_region_name) %>%
-  summarise(pixel_count = sum(pixel_count), .groups = "drop") %>%
-  group_by(subc_id) %>%
-  slice_max(pixel_count, n = 1, with_ties = FALSE) %>%
-  ungroup()
-
 
 
 # Join with sp data
 epto <- epto %>%
+  filter(!is.na(cluster_id)) %>%
   left_join(subcatchment_continent, by = c("subcatchment_ID" = "subc_id"))
 
 # Select taxon -----------------------------------------------
 
 sp_data <- epto %>%
- na.omit() %>%
-  mutate(
-       continent = case_when(
-        sub_region_name %in% c("Northern Europe", "Southern Europe", "Eastern Europe", "Western Europe") ~ "Europe",
-        sub_region_name %in% c("Eastern Asia", "Southern Asia", "South-eastern Asia", "Western Asia", "Central Asia") ~ "Asia",
-        sub_region_name %in% c("Northern America") ~ "North America",
-        sub_region_name %in% c("Latin America and the Caribbean") ~ "South America",
-        sub_region_name %in% c("Sub-Saharan Africa", "Northern Africa" ) ~ "Africa",
-        sub_region_name %in% c("Melanesia", "Polynesia", "Micronesia", "Australia and New Zealand" ) ~ "Oceania",
-        TRUE ~ "Other"
-      )) %>%
-  mutate(taxon = clean_species) # %>%
-  #filter(!order == "Odonata") %>%
+    mutate(clean_species = ifelse(grepl("sp\\.", clean_species), "", clean_species),
+            taxon = clean_species) 
    
 
 # Sampling effort --------------------------------------------

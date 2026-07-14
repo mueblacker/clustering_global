@@ -96,3 +96,9 @@ restricted_multicontinent_species <- sp_continent %>%
     .groups = "drop") %>%
   filter(n_continents > 1) %>%
   select(-n_continents)
+
+# Save -------------------------------------------------------
+fwrite(restricted_multicontinent_species,
+  "/data/mschuerz/clustering_global/world_v2/restricted_multicontinent_species_20260714.csv", 
+  row.names = FALSE, col.names = TRUE
+)
