@@ -30,7 +30,17 @@ epto <- fread(
 sp_data <- epto %>%
     filter(!is.na(cluster_id)) %>%
     # Species-level name used for the community matrix
-    mutate(taxon = clean_species)
+     mutate(clean_species = ifelse(grepl("sp\\.", clean_species), "", clean_species),
+            taxon = clean_species)
+     
+
+
+# Load cluster size --------------------------------------------
+subcatchments <- fread(
+  "/data/mschuerz/clustering_global/world_v2/cluster_size_count_20260714.csv"
+)
+
+
 # Calculate sampling effort ----------------------------------
 
 # Summarise the number of total records and the proportion
@@ -58,6 +68,54 @@ records_cluster <- sp_data %>%
     .groups = "drop"
   )
 
+# Calculate spatial coverage ----------------------------------
+
+coverage <- sp_data %>%
+  filter(!is.na(subcatchment_ID)) %>%
+  distinct(cluster_id, subcatchment_ID) %>%
+  count(cluster_id, name = "sampled_subcatchments") %>%
+  left_join(subcatchments, by = "cluster_id") %>%
+  mutate(
+    spatial_coverage =
+      100 * sampled_subcatchments / total_subcatchments
+  )
+
+# Create indices matrix --------------------------------------
+
+incidence <- sp_data %>%
+  filter(clean_species != "") %>%
+  distinct(cluster_id, subcatchment_ID, taxon)
+
+# 
+chao_table <-
+  incidence %>%
+  group_by(cluster_id, taxon) %>%
+  summarise(
+    incidence = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(cluster_id) %>%
+  summarise(
+
+    observed = n(),
+
+    Q1 = sum(incidence == 1),
+
+    Q2 = sum(incidence == 2),
+
+    chao2 = case_when(
+      Q2 > 0 ~ observed + (Q1^2) / (2 * Q2),
+      TRUE   ~ observed + (Q1 * (Q1 - 1)) / 2
+    ),
+
+    completeness = observed / chao2,
+
+    prop_singletons = Q1 / observed,
+
+    .groups = "drop"
+  )
+
+write.csv(chao_table, "/data/mschuerz/clustering_global/world_v2/chao2_20260714.csv", row.names = FALSE)
 
 # Create cluster-level community matrix -----------------------
 
@@ -123,7 +181,7 @@ CWE <- WE / richness
 
 # Taxa occurring in only one cluster are considered restricted.
 
-restricted_taxa <- names(taxon_occupancy[taxon_occupancy <=2])
+restricted_taxa <- names(taxon_occupancy[taxon_occupancy <=1])
 
 restricted_counts <- apply(
   comm[, restricted_taxa, drop = FALSE], 1, sum)
@@ -140,11 +198,10 @@ cluster_summary <- data.frame(
     restricted_taxa_n = restricted_counts,
     restricted_taxa_prop = restricted_prop) %>%
   left_join(records_cluster, by = "cluster_id") %>%
-  mutate(
-    # Species detected per 100 occurrence records
-    richness_per_100_records = richness / n_total * 100,
-    # Weighted endemism per 100 occurrence records
-    WE_per_100_records = WE / n_total * 100)
+  left_join(coverage, by = "cluster_id") %>%
+  left_join(chao_table, by = "cluster_id") %>%
+  mutate(richness_per_100_records = richness / n_total * 100,
+         WE_per_100_records = WE / n_total * 100)
 
 
 # Correct biodiversity metrics for sampling effort -----------
@@ -178,16 +235,38 @@ cluster_summary <- cluster_summary %>%
 stat_table_cluster <- cluster_summary %>%
   select(
     cluster_id,
+
     n_total,
+
+    sampled_subcatchments,
+    total_subcatchments,
+    spatial_coverage,
+
     species_id_rate,
+
     richness,
+    chao2,
+    completeness,
+    prop_singletons,
+
     richness_per_100_records,
     richness_residual,
+
     WE,
     CWE,
     WE_per_100_records,
     WE_residual,
+
     restricted_taxa_n,
     restricted_taxa_prop
   ) %>%
-  arrange(desc(n_total))
+  rename(total_records = n_total,
+         detected_richness = richness,
+         prop_single_subc_species = prop_singletons)
+  arrange(desc(total_records))
+
+# Save -------------------------------------------------------
+fwrite(stat_table_cluster,
+  "/data/mschuerz/clustering_global/world_v2/cluster30_epto_statistics_20260714.csv", 
+  row.names = FALSE, col.names = TRUE
+)
