@@ -24,6 +24,10 @@ COPY (
             subc_id,
             CASE
 
+                 WHEN tile IN ('h10v06', 'h12v06', 'h12v08', 'h08v06') THEN 'South America'
+                 WHEN tile IN ('h34v10', 'h00v04',  'h00v06', 'h00v08', 'h00v10', 'h02v06', 'h02v08', 'h02v10') THEN 'Oceania'
+                 WHEN tile IN ('h22v08', 'h22v10',  'h20v10') THEN 'Africa'
+
                 WHEN sub_region_name IN (
                     'Northern Europe',
                     'Southern Europe',

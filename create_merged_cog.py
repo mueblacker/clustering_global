@@ -16,8 +16,8 @@ gdal.UseExceptions()
 
 # Settings -------------------------------------------------------
 
-input_dir = "/data/mschuerz/clustering_global/world_v2/cluster_rasters"
-output_cog = "/data/mschuerz/clustering_global/world_v2/world_clusters30_cog_v2.tif"
+input_dir = "/data/mschuerz/clustering_global/world_v2/cluster_rasters_HydroLAKES/"
+output_cog = "/data/mschuerz/clustering_global/world_v2/lfhc_30k_20260921.tif"
 
 tmp_vrt = "/data/mschuerz/tmp_merged.vrt"
 tmp_tif = "/data/mschuerz/tmp_uint8.tif"
@@ -41,45 +41,39 @@ nodata_value = 0
 #    return (int(r*255), int(g*255), int(b*255), 255)
 
 COLORS = {
-  
-    1: (255, 0, 0, 255),       # red
-    2: (0, 255, 0, 255),       # green
-    3: (255, 255, 0, 255),     # yellow
-    4: (255, 0, 128, 255),     # pink
-    5: (255, 0, 255, 255),     # magenta
-    6: (0, 255, 255, 255),     # cyan
-
-    7: (128, 0, 0, 255),       # maroon
-    8: (0, 128, 0, 255),       # dark green
-    9: (0, 0, 128, 255),       # navy
-    10: (128, 128, 0, 255),    # olive
-    11: (214, 234, 240),       # ice blue
-    12: (0, 128, 128, 255),    # teal
-
-    13: (192, 64, 0, 255),     # orange-brown
-    14: (255, 128, 0, 255),    # orange
-    15: (0, 64, 192, 255),     # strong blue
-
-    16: (192, 0, 64, 255),     # pink-red
-    17: (64, 0, 192, 255),     # violet
-    18: (0, 192, 64, 255),     # green-cyan
-
-    19: (128, 0, 128, 255),    # purple
-    20: (128, 255, 0, 255),    # yellow-green
-    21: (0, 128, 255, 255),    # sky blue
-
-    22: (128, 128, 255, 255),  # light blue
-    23: (128, 0, 255, 255),    # purple-blue
-    24: (0, 255, 128, 255),    # aqua-green
-
-    25: (64, 64, 64, 255),     # dark gray
-    26: (128, 255, 128, 255),  # light green
-    27: (255, 128, 255, 255),  # light magenta
-
-    28: (255, 255, 128, 255),  # light yellow
-    29: (64, 192, 0, 255),     # lime green
-    30: (0, 0, 255, 255),      # blue
+    1:  (102, 166,  30, 255),   # Natural vegetation & cropland
+    2:  (166, 216,  84, 255),   # Natural vegetation & cropland
+    3:  (222, 204, 170, 255),   # Bare area
+    4:  (184, 217,  90, 255),   # Grassland
+    5:  (136, 183, 252, 255),   # Annual streamflow
+    6:  (  0, 109,  44, 255),   # Tree broadleaf evergreen
+    7:  (201, 180,  88, 255),   # Sparse vegetation
+    8:  ( 35, 139,  69, 255),   # Tree mixed leaf
+    9:  (247, 220,  72, 255),   # Cropland irrigated
+    10: (  0,  79,  90, 255),   # Precipitation driest month + evergreen
+    11: (234, 244, 244, 255),   # Snow and ice
+    12: ( 45, 130, 214, 255),   # Stream power & flow accumulation
+    13: ( 47, 143, 131, 255),   # Tree flooded freshwater
+    14: (245, 169,  76, 255),   # Bare area + precipitation seasonality
+    15: (139,  90,  43, 255),   # Elevation
+    16: (  0,  68,  27, 255),   # Tree needle evergreen
+    17: (141, 170,  91, 255),   # Shrubland - muted green
+    18: (255, 193,   7, 255),   # Cropland rainfed
+    19: ( 77, 175,  74, 255),   # Tree broadleaf deciduous
+    20: (169, 196, 108, 255),   # Grassland
+    21: (139, 195,  74, 255),   # Cropland + natural vegetation
+    22: (140, 140,  90, 255),   # Lichens & mosses
+    23: ( 34, 199, 214, 255),   # Annual precipitation
+    24: ( 82, 183, 136, 255),   # Shrub/herb flooded
+    25: (  1,  68, 133, 255),   # Water bodies
+    26: ( 63, 138, 252, 255),   # Flow accumulation
+    27: ( 81,  45, 168, 255),   # Stream gradient
+    28: (181, 201, 122, 255),   # Mosaic crop + natural vegetation
+    29: ( 27,  94,  32, 255),   # Tree needle deciduous
+    30: (104, 159,  56, 255),   # Tree/shrub/herb
 }
+
+
 
 def consistent_color(class_id):
     return COLORS.get(class_id, (0, 0, 0, 255))  # fallback = black

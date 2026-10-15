@@ -7,9 +7,9 @@ from osgeo import gdal
 
 # Intput ---------------------------------------------------------
 
-input_dir = "/data/mschuerz/clustering_global/world_v2/cluster_rasters"
-output_dir = "/data/mschuerz/clustering_global/world_v2/cluster_rasters_HydroLAKES"
-merged_output = "/data/mschuerz/clustering_global/world_v2/world_clusters30.tif"
+input_dir = "/data/mschuerz/clustering_global/world_wo_lc/cluster_rasters/clusters20"
+output_dir = "/data/mschuerz/clustering_global/world_wo_lc/cluster20_rasters_HydroLAKES"
+merged_output = "/data/mschuerz/clustering_global/world_wo_lc/world_wo_lc_clusters20.tif"
 
 gdb_path = "/data/mschuerz/clustering_global/HydroLAKES_polys_v10.gdb"
 layer_name = "HydroLAKES_polys_v10"

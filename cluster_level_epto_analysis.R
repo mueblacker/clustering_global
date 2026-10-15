@@ -24,14 +24,16 @@ library(arrow)
 # Load occurrence data ----------------------------------------
 
 epto <- fread(
-  "/mnt/shared/mschuerz/Global_EPTO_database_clean_species_cluster_id.csv"
+  "/mnt/shared/mschuerz/Global_EPTO_database_corrected_continent_20260804.csv"
 )
 
 sp_data <- epto %>%
     filter(!is.na(cluster_id)) %>%
     # Species-level name used for the community matrix
      mutate(clean_species = ifelse(grepl("sp\\.", clean_species), "", clean_species),
+            clean_species = ifelse(grepl("^[^_]+_[^_,]+,_[0-9]{4}$", species), "", clean_species),
             taxon = clean_species)
+
      
 
 
@@ -115,7 +117,7 @@ chao_table <-
     .groups = "drop"
   )
 
-write.csv(chao_table, "/data/mschuerz/clustering_global/world_v2/chao2_20260714.csv", row.names = FALSE)
+write.csv(chao_table, "/data/mschuerz/clustering_global/world_v2/chao2_20260828.csv", row.names = FALSE)
 
 # Create cluster-level community matrix -----------------------
 
@@ -262,11 +264,20 @@ stat_table_cluster <- cluster_summary %>%
   ) %>%
   rename(total_records = n_total,
          detected_richness = richness,
-         prop_single_subc_species = prop_singletons)
+         prop_single_subc_species = prop_singletons) %>%
   arrange(desc(total_records))
+
 
 # Save -------------------------------------------------------
 fwrite(stat_table_cluster,
-  "/data/mschuerz/clustering_global/world_v2/cluster30_epto_statistics_20260714.csv", 
+  "/data/mschuerz/clustering_global/world_v2/cluster30_epto_statistics_20260828.csv", 
+  row.names = FALSE, col.names = TRUE
+)
+
+selected <- stat_table_cluster %>%
+  select(cluster_id, total_records, spatial_coverage, species_id_rate, detected_richness, completeness, CWE, restricted_taxa_n)
+
+fwrite(selected,
+  "/data/mschuerz/clustering_global/world_v2/cluster30_epto_statistics_selected_20260828.csv", 
   row.names = FALSE, col.names = TRUE
 )

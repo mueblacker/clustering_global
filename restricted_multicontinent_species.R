@@ -7,28 +7,13 @@ library(arrow)
 
 # Load data --------------------------------------------------
 
-epto <- fread("/mnt/shared//Global_EPTO_database_clean_species_cluster_id.csv")
-
-tiles <- open_dataset(
-  "/data/mschuerz/clustering_global/sub_catchment_continent_parquet",
-  format = "parquet"
-)
-
-subcatchment_continent <- tiles %>%
-  filter(subc_id %in% unique(epto$subcatchment_ID)) %>%
-  select(subc_id, continent) %>%
-  collect()
-
-
-# Join with sp data
-epto <- epto %>%
-  filter(!is.na(cluster_id)) %>%
-  left_join(subcatchment_continent, by = c("subcatchment_ID" = "subc_id"))
+epto <- fread("/mnt/shared/mschuerz/Global_EPTO_database_corrected_continent_20260804.csv")
 
 # Select taxon -----------------------------------------------
 
 sp_data <- epto %>%
     mutate(clean_species = ifelse(grepl("sp\\.", clean_species), "", clean_species),
+           clean_species = ifelse(grepl("^[^_]+_[^_,]+,_[0-9]{4}$", species), "", clean_species),
             taxon = clean_species) 
    
 sp_continent <- sp_data %>%
@@ -99,6 +84,10 @@ restricted_multicontinent_species <- sp_continent %>%
 
 # Save -------------------------------------------------------
 fwrite(restricted_multicontinent_species,
-  "/data/mschuerz/clustering_global/world_v2/restricted_multicontinent_species_20260714.csv", 
+  "/data/mschuerz/clustering_global/world_v2/restricted_multicontinent_species_20260828.csv", 
   row.names = FALSE, col.names = TRUE
 )
+
+t <- sp_data %>% filter(cluster_id %in% restricted_multicontinent_species$cluster_id, taxon %in% restricted_multicontinent_species$taxon)
+s <- st_as_sf(t, coords = c("longitude", "latitude"), crs = 4326)
+st_write(s, "/data/mschuerz/clustering_global/world_v2/restricted_multicontinent_species_20260828.gpkg")

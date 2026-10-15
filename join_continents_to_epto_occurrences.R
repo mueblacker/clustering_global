@@ -1,4 +1,4 @@
-#  Add sub-region to sub-catchments with occurrence data
+#  Add continent to sub-catchments with occurrence data
 
 # Load libraries ----------------------------------------------
 
@@ -11,7 +11,7 @@ library(arrow)
 # Load occurrence data ----------------------------------------
 
 epto <- fread(
-  "/mnt/shared/mschuerz/Global_EPTO_database_clean_species_cluster_id.csv"
+  "/mnt/shared/mschuerz/Global_EPTO_database_clean_species_cluster_id_corr_20260728.csv"
 )
 # Load sub-catchment spatial information ----------------------
 
@@ -20,9 +20,11 @@ tiles <- open_dataset(
   format = "parquet"
 )
 
+ids <- unique(epto$subcatchment_ID)
+
 subcatchment_info <- tiles %>%
   select(subc_id,sub_region_name,pixel_count) %>%
-  filter(subc_id %in% unique(epto$subcatchment_ID)) %>%
+  filter(subc_id %in% ids) %>%
   collect()
 
 
@@ -88,7 +90,32 @@ sp_data <- epto %>%
 
 # Save ----------------------------------------------------
 
-fwrite(sp_data,
-  "/mnt/shared/mschuerz/Global_EPTO_database_clean_species_cluster_id_sub_region.csv", 
+
+# 2. Direktes Mutate mit Prüfung: "Wenn Europe UND in Bounding-Box, dann ändern"
+clean_table <- sp_data %>%
+  mutate(continent = case_when(
+    # --- BOX SÜDAMERIKA & KARIBIK ---
+    # Breitengrad bis 25.0° N erweitert, um alle Karibikinseln mitzunehmen
+    continent == "Europe" & (latitude >= -56.0 & latitude <= 25.0 & longitude >= -110.0 & longitude <= -34.0) ~ "South America",
+    
+    # --- BOX AFRIKA ---
+    continent == "Europe" & (latitude >= -35.0 & latitude <= 38.0 & longitude >= -25.0 & longitude <= 60.0) ~ "Africa",
+    
+    # --- BOX OZEANIEN / WEST-PAZIFIK ---
+    continent == "Europe" & (latitude >= -50.0 & latitude <= 15.0 & longitude >= 110.0 & longitude <= 180.0) ~ "Oceania",
+    
+    # --- BOX OZEANIEN / OST-PAZIFIK ---
+    continent == "Europe" & (latitude >= -30.0 & latitude <= 5.0 & longitude >= -180.0 & longitude <= -110.0) ~ "Oceania",
+    
+    # --- BOX NORDAMERIKA (Restliches Nordamerika ohne Karibik) ---
+    # Startet nun erst ab 25.0° N (z. B. für Saint-Pierre und Miquelon nahe Kanada)
+    continent == "Europe" & (latitude > 25.0 & latitude <= 85.0 & longitude >= -170.0 & longitude <= -50.0) ~ "North America",
+    
+    # Standardfall: Wenn nichts zutrifft, behalte den alten Wert
+    TRUE ~ continent
+  ))
+
+fwrite(clean_table,
+  "/mnt/shared/mschuerz/Global_EPTO_database_clean_species_cluster_id_continent_20260803.csv", 
   row.names = FALSE, col.names = TRUE
 )

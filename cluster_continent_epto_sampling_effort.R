@@ -24,30 +24,18 @@ library(arrow)
 
 
 # Load occurrence data ----------------------------------------
-epto <- fread("/mnt/shared//Global_EPTO_database_clean_species_cluster_id.csv")
+epto <- fread("/mnt/shared/mschuerz/Global_EPTO_database_corrected_continent_20260804.csv")
 
 
-tiles <- open_dataset(
-  "/data/mschuerz/clustering_global/sub_catchment_continent_parquet",
-  format = "parquet"
-)
-
-subcatchment_continent <- tiles %>%
-  filter(subc_id %in% unique(epto$subcatchment_ID)) %>%
-  select(subc_id, continent) %>%
-  collect()
 
 subcatchments <- fread(
-  "/data/mschuerz/clustering_global/world_v2/cluster_size_count_20260714.csv"
+  "/data/mschuerz/clustering_global/world_v2/cluster_size_count_20260804.csv"
 )
 
-# Join with sp data
-epto <- epto %>%
-  filter(!is.na(cluster_id)) %>%
-  left_join(subcatchment_continent, by = c("subcatchment_ID" = "subc_id"))
 
 sp_data <- epto %>%
     mutate(clean_species = ifelse(grepl("sp\\.", clean_species), "", clean_species),
+           clean_species = ifelse(grepl("^[^_]+_[^_,]+,_[0-9]{4}$", species), "", clean_species),
             taxon = clean_species) 
 
 total_subcatchments_long <- subcatchments %>%
@@ -113,6 +101,6 @@ stat_table_cluster_continent <- cluster_continent_summary %>%
 
 # Save -------------------------------------------------------
 fwrite(stat_table_cluster_continent,
-  "/data/mschuerz/clustering_global/world_v2/cluster_continent_epto_sampling_effort_20260714.csv", 
+  "/data/mschuerz/clustering_global/world_v2/cluster_continent_epto_sampling_effort_20260828.csv", 
   row.names = FALSE, col.names = TRUE
 )

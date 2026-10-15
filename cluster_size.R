@@ -10,7 +10,7 @@ options(digits = 10)
 
 con <- dbConnect(duckdb())
 
-dbExecute(con, "SET threads = 16;")          
+dbExecute(con, "SET threads = 16;")
 dbExecute(con, "SET memory_limit = '120GB';") 
 
 counts <- dbGetQuery(con, "
@@ -65,5 +65,5 @@ count_table <- counts %>%
   arrange(desc(total_percentage))
 
 # Save tables -------------------------------------------------
-write.csv(count_table, "/data/mschuerz/clustering_global/world_v2/cluster_size_count_20260714.csv", row.names = FALSE)
-write.csv(percentage_table, "/data/mschuerz/clustering_global/world_v2/cluster_size_percentages_20260714.csv", row.names = FALSE)
+write.csv(count_table, "/data/mschuerz/clustering_global/world_v2/cluster_size_count_20260804.csv", row.names = FALSE)
+write.csv(percentage_table, "/data/mschuerz/clustering_global/world_v2/cluster_size_percentages_20260804.csv", row.names = FALSE)
