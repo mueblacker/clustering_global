@@ -2,12 +2,12 @@
 #SBATCH --job-name=corr
 #SBATCH --partition=day
 #SBATCH --nodes=4                # node count, change as needed
-#SBATCH --ntasks-per-node=2      # do not change, leave as 1 task per node
+#SBATCH --ntasks-per-node=2      # change as needed
 #SBATCH --cpus-per-task=12       # cpu-cores per task, change as needed
 #SBATCH --mem 100G               # memory per node, change as needed
 #SBATCH --time=00:05:00
-#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/corr.%A_%a.out
-#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/corr.%A_%a.err
+#SBATCH -o /scratch/stdout/corr.%A_%a.out
+#SBATCH -e /scratch/stderr/corr.%A_%a.err
 #SBATCH --mail-type=NONE
 
 # Determine settings for Spark based on requested SLURM resources
@@ -55,6 +55,6 @@ date
 spark-submit --master ${SPARK_MASTER_URL} \
   --executor-memory ${EXECMEM}G \
   --total-executor-cores ${TOTALEXEC} \
-  /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/correlation_analysis_rg.py
+  /my_directory/code/clustering_global/01_correlation_analysis.py
 
 date
