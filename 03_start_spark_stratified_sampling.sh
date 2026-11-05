@@ -6,8 +6,8 @@
 #SBATCH --cpus-per-task=8       # cpu-cores per task, change as needed
 #SBATCH --mem 80G               # memory per node, change as needed
 #SBATCH --time=00:30:00
-#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/sample_0.01_seed123.%A_%a.out
-#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/sample_0.01_seed123.%A_%a.err
+#SBATCH -o /scratch/stdout/sample_0.01_seed123.%A_%a.out
+#SBATCH -e /scratch/stderr/sample_0.01_seed123.%A_%a.err
 #SBATCH --mail-type=NONE
 
 # Determine settings for Spark based on requested SLURM resources
@@ -94,7 +94,7 @@ spark-submit \
   --conf spark.executor.memoryOverhead=${EXECUTOR_OVERHEAD_GB}g \
   --conf spark.driver.memory=8g \
   --conf spark.driver.memoryOverhead=2g \
-  /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/sample_for_vimp.py
+  /my_directory/code/clustering_global/sample_for_vimp.py
 
 
 date

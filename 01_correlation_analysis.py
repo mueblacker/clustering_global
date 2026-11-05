@@ -1,6 +1,6 @@
-# ==============================================================
+# =========================================================================
 # Pearson correlation analysis
-# ==============================================================
+# =========================================================================
 
 
 # Load Modules 
@@ -88,5 +88,5 @@ corr_df = spark.createDataFrame(rows, columns)
 # Bring columns together and write them into a singel csv
 # Warrning: Make sure that you define a new folder directory
 # Existing folder directories will be overwritten!
-corr_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/my_directory/clustering_global/l_fhc/correlation')
+corr_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/my_directory/data/clustering_global/l_fhc/correlation')
 

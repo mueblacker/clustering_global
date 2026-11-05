@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=kmeans
+#SBATCH --job-name=sil123
 #SBATCH --partition=day
-#SBATCH --nodes=4                # node count, change as needed
-#SBATCH --ntasks-per-node=4      # do not change, leave as 1 task per node
+#SBATCH --nodes=2                # node count, change as needed
+#SBATCH --ntasks-per-node=4      # change as needed
 #SBATCH --cpus-per-task=4       # cpu-cores per task, change as needed
-#SBATCH --mem 100G               # memory per node, change as needed
-#SBATCH --time=00:15:00
-#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/kmeans.%A_%a.out
-#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/kmeans.%A_%a.err
+#SBATCH --mem 80G               # memory per node, change as needed
+#SBATCH --time=03:00:00
+#SBATCH -o /scratch/stdout/sil_sample_0.01_seed123.%A_%a.out
+#SBATCH -e /scratch/stderr/sil_sample_0.01_seed123.%A_%a.err
 #SBATCH --mail-type=NONE
 
 # Determine settings for Spark based on requested SLURM resources
@@ -55,7 +55,7 @@ date
 spark-submit --master ${SPARK_MASTER_URL} \
   --executor-memory ${EXECMEM}G \
   --total-executor-cores ${TOTALEXEC} \
-  /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/kmeans_clustering.py
+  /my_directory/code/clustering_global/03_silhoutte_score_and_wss.py
 
 
 date

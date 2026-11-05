@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=kmeans20wolc
+#SBATCH --job-name=kmeans30
 #SBATCH --partition=day
-#SBATCH --nodes=10                # node count, change as needed
-#SBATCH --ntasks-per-node=4      # do not change, leave as 1 task per node
-#SBATCH --cpus-per-task=8       # cpu-cores per task, change as needed
+#SBATCH --nodes=10               # node count, change as needed
+#SBATCH --ntasks-per-node=4      # change as needed
+#SBATCH --cpus-per-task=8        # cpu-cores per task, change as needed
 #SBATCH --mem 150G               # memory per node, change as needed
 #SBATCH --time=02:00:00
-#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/kmeans20wolc.%A_%a.out
-#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/kmeans20wolc.%A_%a.err
+#SBATCH -o /scratch/sbsc/stdout/kmeans30.%A_%a.out
+#SBATCH -e /scratch/sbsc/stderr/kmeans30.%A_%a.err
 #SBATCH --mail-type=NONE
 
 # Determine settings for Spark based on requested SLURM resources
@@ -64,7 +64,7 @@ spark-submit \
   --total-executor-cores ${TOTALEXEC} \
   --conf spark.sql.shuffle.partitions=200 \
   --conf spark.broadcast.blockSize=4m \
-  /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/kmeans_clustering_wolc.py
+  /my_directory/code/clustering_global/05_kmeans_clustering.py
 
 
 date
