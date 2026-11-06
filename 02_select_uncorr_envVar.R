@@ -81,7 +81,7 @@ uncorr_enVar <- as.data.table(corr_matrix$term)
 
 # Selection output ---------------------------------------------------------
 
-fwrite(uncorr_enVar, paste0("/my_directory/data/clustering_global/l_fhc/correlation/uncorr_envVar_world_085.csv"))
+fwrite(uncorr_enVar, paste0("/my_directory/data/clustering_global/l_fhc/correlation/uncorr_envVar_lfhc_085.csv"))
 
 
 # Exit R ------------------------------------------------------------------

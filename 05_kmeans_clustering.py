@@ -23,11 +23,11 @@ reg_path = '/my_directory/ENVTABLES/regional_unit_parquet/dataset=stats_standard
 uncorr_envVar = spark.read.csv('/my_directory/data/clustering_global/l_fhc/correlation/uncorr_envVar_lfhc_085.csv', 
                                header = True, inferSchema = True)
 
-# Extract the values from the first column of the selected-feature file.
-# These values are expected to be the names of environmental feature columns.
+# Extract the feature names from the first column and collect them as
+# a Python list.
 columns = uncorr_envVar.rdd.map(lambda x: x[0]).collect()
 
-# Add identifier columns that should be retained along with the feature data
+# Add identifier columns
 columns.append('subc_id')
 columns.append('basin_id')
 columns.append('reg_id')
@@ -94,7 +94,7 @@ print("Finished prediction")
 
 # Save the cluster assignments in Parquet format.
 # - `partitionBy('reg_id')`: organize output into separate folders by region.
-# Warning: mode('overwrite') will overwrite any existing output at this location.
+# - `mode('overwrite')`: will overwrite any existing output at this location.
 clusters.write.partitionBy('reg_id').mode('overwrite').parquet('/my_directory/data/clustering_global/l_fhc/lfhc_cluster_prediction_30_v1_parquet')
 
 

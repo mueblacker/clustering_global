@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=rf30
+#SBATCH --job-name=rf
 #SBATCH --partition=day
-#SBATCH --nodes=6                # node count, change as needed
-#SBATCH --ntasks-per-node=4      # do not change, leave as 1 task per node
+#SBATCH --nodes=6               # node count, change as needed
+#SBATCH --ntasks-per-node=4     # change as neede
 #SBATCH --cpus-per-task=4       # cpu-cores per task, change as needed
 #SBATCH --mem 50G               # memory per node, change as needed
 #SBATCH --time=00:50:00
-#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/rf30.%A_%a.out
-#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/rf30.%A_%a.err
+#SBATCH -o /scratch/stdout/rf.%A_%a.out
+#SBATCH -e /scratch/stderr/rf.%A_%a.err
 #SBATCH --mail-type=NONE
 
 # These modules are required. You may need to customize the module version
@@ -97,7 +97,7 @@ spark-submit \
   --conf spark.sql.shuffle.partitions=300 \
   --conf spark.driver.memory=12g \
   --conf spark.driver.memoryOverhead=4g \
- /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/rf_predict_cluster30.py
+ /my_directory/code/clustering_global/06_random_forest_classifier.py
 
 
 date

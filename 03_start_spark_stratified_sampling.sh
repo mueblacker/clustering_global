@@ -2,7 +2,7 @@
 #SBATCH --job-name=sample
 #SBATCH --partition=day
 #SBATCH --nodes=2                # node count, change as needed
-#SBATCH --ntasks-per-node=2      # do not change, leave as 1 task per node
+#SBATCH --ntasks-per-node=2      # cahnge as needed
 #SBATCH --cpus-per-task=8       # cpu-cores per task, change as needed
 #SBATCH --mem 80G               # memory per node, change as needed
 #SBATCH --time=00:30:00
@@ -94,7 +94,7 @@ spark-submit \
   --conf spark.executor.memoryOverhead=${EXECUTOR_OVERHEAD_GB}g \
   --conf spark.driver.memory=8g \
   --conf spark.driver.memoryOverhead=2g \
-  /my_directory/code/clustering_global/sample_for_vimp.py
+  /my_directory/code/clustering_global/03_stratified_sampling.py
 
 
 date

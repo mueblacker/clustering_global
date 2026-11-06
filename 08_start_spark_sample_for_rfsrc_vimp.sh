@@ -1,14 +1,18 @@
 #!/bin/bash
-#SBATCH --job-name=fimp
+#SBATCH --job-name=sample
 #SBATCH --partition=day
-#SBATCH --nodes=6                # node count, change as needed
-#SBATCH --ntasks-per-node=4      # do not change, leave as 1 task per node
-#SBATCH --cpus-per-task=4       # cpu-cores per task, change as needed
-#SBATCH --mem 50G               # memory per node, change as needed
-#SBATCH --time=01:30:00
-#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/fimp75.%A_%a.out
-#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/fimp75.%A_%a.err
+#SBATCH --nodes=2                # node count, change as needed
+#SBATCH --ntasks-per-node=2      # cahnge as needed
+#SBATCH --cpus-per-task=8       # cpu-cores per task, change as needed
+#SBATCH --mem 80G               # memory per node, change as needed
+#SBATCH --time=00:30:00
+#SBATCH -o /scratch/stdout/sample_25K.%A_%a.out
+#SBATCH -e /scratch/stderr/sample_25K.%A_%a.err
 #SBATCH --mail-type=NONE
+
+# Determine settings for Spark based on requested SLURM resources
+TOTALEXEC=$(($SLURM_NNODES * $SLURM_NTASKS_PER_NODE * $SLURM_CPUS_PER_TASK))
+EXECMEM=$(($SLURM_MEM_PER_NODE / $SLURM_NTASKS_PER_NODE / 1024))
 
 # These modules are required. You may need to customize the module version
 # depending on which cluster you are on.
@@ -57,13 +61,13 @@ EXECUTOR_CORES=$SLURM_CPUS_PER_TASK
 MEM_PER_EXEC_MB=$(( SLURM_MEM_PER_NODE / SLURM_NTASKS_PER_NODE ))
 MEM_PER_EXEC_GB=$(( MEM_PER_EXEC_MB / 1024 ))
 
-# Split memory into heap (70%) + overhead (30%)
-EXECUTOR_HEAP_GB=$(( MEM_PER_EXEC_GB * 70 / 100 ))
+# Split memory into heap (90%) + overhead (10%)
+EXECUTOR_HEAP_GB=$(( MEM_PER_EXEC_GB * 90 / 100 ))
 EXECUTOR_OVERHEAD_GB=$(( MEM_PER_EXEC_GB - EXECUTOR_HEAP_GB ))
 
 # Ensure overhead is at least 4GB
-if [ $EXECUTOR_OVERHEAD_GB -lt 6 ]; then
-  EXECUTOR_OVERHEAD_GB=6
+if [ $EXECUTOR_OVERHEAD_GB -lt 4 ]; then
+  EXECUTOR_OVERHEAD_GB=4
 fi
 
 echo "### SPARK EXECUTOR CONFIGURATION ###"
@@ -88,16 +92,9 @@ spark-submit \
   --conf spark.executor.cores=${EXECUTOR_CORES} \
   --conf spark.executor.memory=${EXECUTOR_HEAP_GB}g \
   --conf spark.executor.memoryOverhead=${EXECUTOR_OVERHEAD_GB}g \
-  --conf spark.shuffle.file.buffer=1m \
-  --conf spark.shuffle.unsafe.file.output.buffer=1m \
-  --conf spark.reducer.maxSizeInFlight=96m \
-  --conf spark.shuffle.compress=true \
-  --conf spark.shuffle.spill.compress=true \
-  --conf spark.default.parallelism=300 \
-  --conf spark.sql.shuffle.partitions=300 \
-  --conf spark.driver.memory=12g \
-  --conf spark.driver.memoryOverhead=4g \
- /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/rf_feature_importance.py
+  --conf spark.driver.memory=8g \
+  --conf spark.driver.memoryOverhead=2g \
+  /my_directory/code/clustering_global/08_sample_for_rfsrc_vimp.py
 
 
 date

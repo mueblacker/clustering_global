@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=cdia
+#SBATCH --job-name=diac
 #SBATCH --partition=day
-#SBATCH --nodes=5                # node count, change as needed
-#SBATCH --ntasks-per-node=4      # do not change, leave as 1 task per node
-#SBATCH --cpus-per-task=4       # cpu-cores per task, change as needed
-#SBATCH --mem 50G               # memory per node, change as needed
-#SBATCH --time=01:00:00
-#SBATCH -o /vast/palmer/scratch/sbsc/mu78/stdout/cdia30.%A_%a.out
-#SBATCH -e /vast/palmer/scratch/sbsc/mu78/stderr/cdia30.%A_%a.err
+#SBATCH --nodes=6                # node count, change as needed
+#SBATCH --ntasks-per-node=1      # change as needed
+#SBATCH --cpus-per-task=32       # cpu-cores per task, change as needed
+#SBATCH --mem 256G               # memory per node, change as needed
+#SBATCH --time=00:30:00
+#SBATCH -o /scratch/stdout/diac.%A_%a.out
+#SBATCH -e /scratch/stderr/diac.%A_%a.err
 #SBATCH --mail-type=NONE
 
 # Determine settings for Spark based on requested SLURM resources
@@ -52,10 +52,17 @@ date
 
 # Customize the executor resources below to match resources requested above
 # with an allowance for spark driver overhead. Also change the path to your spark job.
-spark-submit --master ${SPARK_MASTER_URL} \
-  --executor-memory ${EXECMEM}G \
-  --total-executor-cores ${TOTALEXEC} \
-  /gpfs/gibbs/project/sbsc/mu78/code/clustering_global/cluster_diagnostic.py
-
+spark-submit \
+  --master ${SPARK_MASTER_URL} \
+  --num-executors 30 \
+  --executor-cores 6 \
+  --executor-memory 40G \
+  --driver-memory 16G \
+  --conf spark.sql.shuffle.partitions=600 \
+  --conf spark.network.timeout=600s \
+  --conf spark.executor.heartbeatInterval=60s \
+  --conf spark.shuffle.io.maxRetries=10 \
+  --conf spark.shuffle.io.retryWait=10s \
+  /my_directory/code/clustering_global/07_cluster_diagnostic.py
 
 date

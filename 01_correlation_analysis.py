@@ -85,8 +85,9 @@ corr = Correlation.corr(df, 'features', method='pearson').head()
 rows = corr[0].toArray().tolist()
 corr_df = spark.createDataFrame(rows, columns)
 
-# Bring columns together and write them into a singel csv
-# Warrning: Make sure that you define a new folder directory
-# Existing folder directories will be overwritten!
+# Save the feature-importance table as a CSV file.
+# - `coalesce(1)`: produce one output CSV part file
+# - `mode('overwrite')`: overwrite existing results
+# - `option('header', 'true')`: include column names in the output
 corr_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/my_directory/data/clustering_global/l_fhc/correlation')
 

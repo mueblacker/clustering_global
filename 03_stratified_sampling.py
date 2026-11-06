@@ -2,10 +2,10 @@
 # Stratified sampling by regional unit
 # =========================================================================
 
-# Load modules
+# Import SparkSession
 from pyspark.sql import SparkSession
 
-# Start the PySpark server
+# Create a Spark session
 spark = SparkSession.builder.appName('sample').getOrCreate()
 
 
@@ -60,7 +60,7 @@ sampled = sampled.repartition(300)
 
 # Save the sampled data as Parquet files
 # The output is partitioned into directories based on `reg_id`.
-# Warning: `mode('overwrite')` replaces any existing data at the output location.
+# `mode('overwrite')` replaces any existing data at the output location.
 sampled.write.partitionBy('reg_id').mode('overwrite').parquet('/my_directory/data/clustering_global/l_fhc/samples/sample_0.01_seed123_parquet')
 
 

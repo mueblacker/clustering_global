@@ -10,7 +10,6 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName('silhouette_score').getOrCreate()
 
 # Load modules
-from pyspark.sql import functions as fun
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.clustering import KMeans
 from pyspark.ml.evaluation import ClusteringEvaluator
@@ -110,8 +109,10 @@ sil_df = spark.createDataFrame(sil_list, ['k', 'sil'])
 # The resulting columns are `k` and `wss`.
 wss_df = spark.createDataFrame(within_sum_of_square)
 
-# Write the silhouette-score and the within-cluster sum of squares (WSS) DataFrame to CSV format
-# Warning: The output is written as a single part file and will overwrite prior outputs
+# Save the silhouette-score and the within-cluster sum of squares (WSS) DataFrame as a CSV file.
+# - `coalesce(1)`: produce one output CSV part file
+# - `mode('overwrite')`: overwrite existing results
+# - `option('header', 'true')`: include column names in the output
 sil_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/my_directory/data/clustering_global/l_fhc/sil_0.01_seed123')
 wss_df.coalesce(1).write.mode('overwrite').option('header', 'true').csv('/my_directory/data/clustering_global/l_fhc/wss_0.01_seed123')
 
