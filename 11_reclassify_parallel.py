@@ -1,24 +1,26 @@
+# =========================================================================
 # Script to reclassify the sub-catchment ID raster layer
 # according to the cluster IDs
+# =========================================================================
 
-# Load packages
+# Load modules
 import rasterio
 import numpy as np
 from pathlib import Path
 from multiprocessing import Pool, cpu_count
 
-# Settings --------------------------------------------
+# Settings ----------------------------------------------------------------
 
 # Define directories
-subc_dir = Path("/data/mschuerz/sub_catchment_tiles")
-rules_dir = Path("/data/mschuerz/clustering_global/world_wo_lc/cluster_tables/clusters75")
-output_dir = Path("/data/mschuerz/clustering_global/world_wo_lc/cluster_rasters/clusters75")
+subc_dir = Path("/my_directory/data/sub_catchment_tiles")
+rules_dir = Path("/my_directory/data/clustering_global/l_fhc/cluster_tables")
+output_dir = Path("/my_directory/data/clustering_global/l_fhc/cluster_rasters")
 output_dir.mkdir(parents=True, exist_ok=True)
 
 # Fixed prefixes
 RASTER_PREFIX = "sub_catchment"
-RULE_PREFIX = "clusters75"
-OUTPUT_PREFIX = "clusters75"
+RULE_PREFIX = "clusters30"
+OUTPUT_PREFIX = "clusters30"
 
 # Define columns in the rule file (0-based)
 OLD_VALUE = 2
@@ -30,7 +32,7 @@ OUTPUT_DTYPE = np.uint8
 MAX_WORKERS = 15 # max(4, cpu_count() - 35)
 
 
-# Core functions -------------------------------------
+# Core functions -----------------------------------------------------------
 
 # Function to load rules from the look up table (.txt)
 def load_rules(rule_file):
@@ -78,7 +80,7 @@ def reclassify_one(args):
         print(f"Error processing {raster_path.name}: {e}")
         return None
 
-# Build job list -----------------------------------------
+# Build job list ----------------------------------------------------------
 
 def build_jobs():
     # Only .tif raster files
@@ -103,7 +105,7 @@ def build_jobs():
 
 
 
-# Main - execute functions -----------------------------
+# Main - execute functions -----------------------------------------------
 
 if __name__ == "__main__":
     jobs = build_jobs()
@@ -124,7 +126,7 @@ if __name__ == "__main__":
     print("All rasters processed")
 
 
-# Test mode: only first raster-rule pair --------------
+# Test mode: only first raster-rule pair -------------------------------
 
 # jobs = build_jobs()
 
