@@ -1,4 +1,8 @@
+# =========================================================================
 # Burn HydroLakes as NoData into the cluster raster files
+# and merge tiles to a global raster
+# =========================================================================
+
 
 # Load moduls -----------------------------------------------------
 import os
@@ -7,11 +11,11 @@ from osgeo import gdal
 
 # Intput ---------------------------------------------------------
 
-input_dir = "/data/mschuerz/clustering_global/world_wo_lc/cluster_rasters/clusters20"
-output_dir = "/data/mschuerz/clustering_global/world_wo_lc/cluster20_rasters_HydroLAKES"
-merged_output = "/data/mschuerz/clustering_global/world_wo_lc/world_wo_lc_clusters20.tif"
+input_dir = "/my_directory/data/clustering_global/l_fhc/cluster_rasters/clusters30"
+output_dir = "/my_directory/data/clustering_global/l_fhc/cluster30_rasters_HydroLAKES"
+merged_output = "/my_directory/data/clustering_global/l_fhc/lfhc_clusters30.tif"
 
-gdb_path = "/data/mschuerz/clustering_global/HydroLAKES_polys_v10.gdb"
+gdb_path = "/my_directory/data/clustering_global/HydroLAKES_polys_v10.gdb"
 layer_name = "HydroLAKES_polys_v10"
 
 nodata_value = 0  
@@ -21,7 +25,7 @@ tmp_vrt = os.path.join(output_dir, "temp.vrt")
 tmp_merged = os.path.join(output_dir, "merged_uint8.tif")
 
 
-# SETUP -----------------------------------------------------------
+# Setup -----------------------------------------------------------
 os.makedirs(output_dir, exist_ok=True)
 
 gdal.UseExceptions()
@@ -35,7 +39,7 @@ if not tif_files:
 print(f"Found {len(tif_files)} raster tiles")
 
 
-# BUILD VRT (MERGE) -----------------------------------------------
+# Build VRT - Merge -----------------------------------------------
 print("Building VRT...")
 
 vrt_options = gdal.BuildVRTOptions(
@@ -47,7 +51,7 @@ vrt_options = gdal.BuildVRTOptions(
 
 gdal.BuildVRT(tmp_vrt, tif_files, options=vrt_options)
 
-# CONVERT TO UINT8 ------------------------------------------
+# Convert to Unit8 ------------------------------------------------
 print("Converting merged raster to UInt8...")
 
 gdal.Translate(
@@ -60,7 +64,7 @@ gdal.Translate(
 )
 
 
-# LOAD VECTOR  ------------------------------------------------
+# Load Vector  -----------------------------------------------------
 print("Loading polygon layer from GDB...")
 
 vector_ds = gdal.OpenEx(gdb_path, gdal.OF_VECTOR)
@@ -72,7 +76,7 @@ if layer is None:
     raise RuntimeError(f"Layer '{layer_name}' not found in GDB")
 
 
-# MASK MERGED RASTER -------------------------------------------
+# Mask merged raster -----------------------------------------------
 print("Applying mask to merged raster...")
 
 merged_ds = gdal.Open(tmp_merged, gdal.GA_Update)
@@ -91,7 +95,7 @@ print(f"Merged masked raster saved to: {merged_output}")
 gdal.Translate(merged_output, tmp_merged)
 
 
-# PROCESS EACH TILE ----------------------------------------------
+# Process each tiles ------------------------------------------------
 print("Processing individual tiles...")
 
 for tif in tif_files:
@@ -125,7 +129,7 @@ for tif in tif_files:
 print("All tiles processed.")
 
 
-# CLEANUP ----------------------------------------------------------
+# Cleanup ----------------------------------------------------------
 vector_ds = None
 
 if os.path.exists(tmp_vrt):

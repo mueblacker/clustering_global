@@ -1,7 +1,9 @@
+# =========================================================================
 # Script to generate a Cloud optimized GeoTiff
 # Merge and create a VRT
+# =========================================================================
 
-# Load packages --------------------------------------------------
+# Load modules ---------------------------------------------------
 
 import os
 import glob
@@ -16,17 +18,17 @@ gdal.UseExceptions()
 
 # Settings -------------------------------------------------------
 
-input_dir = "/data/mschuerz/clustering_global/world_wo_lc/cluster20_rasters_HydroLAKES/"
-output_cog = "/data/mschuerz/clustering_global/world_wo_lc/pfhc_20k_20260921.tif"
+input_dir = "/my_directory/data/clustering_global/p_fhc/cluster20_rasters_HydroLAKES/"
+output_cog = "/my_directory/data/clustering_global/p_fhc/pfhc_20k_20260921.tif"
 
-tmp_vrt = "/data/mschuerz/tmp_merged.vrt"
-tmp_tif = "/data/mschuerz/tmp_uint8.tif"
+tmp_vrt = "/my_directory/data/tmp_merged.vrt"
+tmp_tif = "/my_directory/data/tmp_uint8.tif"
 
 compression = "ZSTD"
 block_size = 512
 nodata_value = 0
 
-# ----------------------------------------------------------------
+# Color theme ------------------------------------------------------
 
 #def consistent_color(val):
 #    rnd = random.Random(int(val))

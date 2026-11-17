@@ -1,20 +1,26 @@
-# Create .txt file per tile ID with cluster IDs
-# Including reg_id, basin_id, subc_id, cluster_id
+# =========================================================================
+# Create .txt file per tile ID
+# Including reg_id, basin_id, subc_id, and cluster_id
+# =========================================================================
 
 # Set working directory ---------------------------------------------------
 
-wdir <- "/mnt/mschuerz/mschuerz/data/clustering_global"
+wdir <- "/my_directory/data/clustering_global"
 setwd(wdir)
 
 # Functions ---------------------------------------------------------------
 
-# Function to check if the required packages are installed and to load the library
+# Define a helper function that checks whether an R package is installed.
+# If the package is not installed, it installs the package and its dependencies.
+# It then loads the package into the current R session.
 usePackage <- function(p){
   if (!is.element(p, installed.packages()[,1])) install.packages(p, dep = TRUE)
   library(p, character.only = TRUE)
 }
 
 # Libraries ---------------------------------------------------------------
+
+# Load required R packages, installing them first if necessary
 usePackage("data.table")
 usePackage("tidyverse")
 usePackage("hydrographr")
@@ -30,7 +36,6 @@ usePackage("stringr")
 
 # hv_string <- str_extract(files, "h\\d+v\\d+")
 
-# Read data ---------------------------------------------------------------
 # RUs of South America 
 # reg_ids <- c(35, 42, 34, 175, 41, 48, 176, 179, 178, 33, 47,
 #              40, 39, 177, 32, 26, 27)
@@ -43,7 +48,7 @@ usePackage("stringr")
 #              40, 39, 177, 32, 26, 27)
 
 # List with tile number and overlapping RUs - Look up table
-tiles_RUids <- fread("/mnt/shared/tiles_tb/tile_RUids_old.txt",
+tiles_RUids <- fread("/my_directory/tiles_tb/tile_RUids.txt",
                      header = FALSE, fill = TRUE)
 
 tiles_RUids <- tiles_RUids %>%
@@ -57,16 +62,15 @@ tiles_RUids <- tiles_RUids %>%
 
 tiles <- tiles_RUids$tile_id %>% unique()
 
-# Define cores ------------------------------------------------------------
-
+# Define cores
 ncores <- 15 # parallel::detectCores() - 1
 cl <- makeCluster(ncores)
 registerDoParallel(cl)
 
 foreach(i = tiles, .packages = c("data.table", "tidyverse", "arrow", "hydrographr")) %dopar% {
 
-  # Read file with sub-catchment ids
-    subc_ids <- fread(paste0("/mnt/shared/tiles_tb/indx/", i, "_subcID.txt"))
+  # Read file with sub-catchment IDs
+    subc_ids <- fread(paste0("/my_directory/tiles_tb/indx/", i, "_subcID.txt"))
     tmp_subc_ids <- subc_ids$V1
 
   # Define RUids which overlap with the tile using the look up table
@@ -77,7 +81,7 @@ foreach(i = tiles, .packages = c("data.table", "tidyverse", "arrow", "hydrograph
 
 
   # Read cluster and rf prediction of the defined RUids
-    cl_pred <- open_dataset(paste0(wdir, "/world_wo_lc/cluster_prediction_75_v1_parquet"))
+    cl_pred <- open_dataset(paste0(wdir, "/l_fhc/lfhc_cluster_30_prediction_v1_parquet"))
     
     cl_df <- cl_pred %>%
         filter(reg_id %in% tmp_RUids) %>%
@@ -88,7 +92,7 @@ foreach(i = tiles, .packages = c("data.table", "tidyverse", "arrow", "hydrograph
       select(reg_id, basin_id, subc_id, prediction) %>%
       rename(cluster_id = prediction)
 
-    rf_pred <- open_dataset(paste0(wdir, "/world_wo_lc/rf_prediction_75_ntree200_depth12_v1"))
+    rf_pred <- open_dataset(paste0(wdir, "/l_fhc/lfhc_rf_prediction_30_ntree200_depth12_v1"))
 
     rf_df <- rf_pred %>%
         filter(reg_id %in% tmp_RUids) %>%
@@ -105,8 +109,8 @@ foreach(i = tiles, .packages = c("data.table", "tidyverse", "arrow", "hydrograph
                subc_id = as.integer(subc_id),
                cluster_id = as.integer(cluster_id))
 
-    # Save cluster prediction table
-    fwrite(df, paste0(wdir, "/world_wo_lc/cluster_tables/clusters75/clusters75_", i, ".txt"), sep=" ")
+    # Save cluster prediction tables
+    fwrite(df, paste0(wdir, "/l_fhc/cluster_tables/clusters30_", i, ".txt"), sep=" ")
 
 }
 

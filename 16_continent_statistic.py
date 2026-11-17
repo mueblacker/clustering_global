@@ -1,27 +1,25 @@
 #!/usr/bin/env python3
-"""
-Calculate categorical raster proportions per continent.
+# =========================================================================
+# Calculate categorical raster proportions per continent.
+# =========================================================================
 
-Workflow:
-1. Read categorical raster
-2. Reproject raster to EPSG:54009 (World Mollweide)
-3. Download/load Natural Earth Admin-0 countries
-4. Dissolve countries into continents
-5. Reproject continents to EPSG:54009
-6. Rasterize continents to raster grid
-7. Calculate category counts + proportions per continent
+# Workflow:
+# 1. Read categorical raster
+# 2. Reproject raster to EPSG:54009 (World Mollweide)
+# 3. Download/load Natural Earth Admin-0 countries
+# 4. Dissolve countries into continents
+# 5. Reproject continents to EPSG:54009
+# 6. Rasterize continents to raster grid
+# 7. Calculate category counts + proportions per continent
 
-Outputs:
-- reprojected raster
-- dissolved continent shapefile
-- continent raster
-- CSV with counts
-- CSV with proportions
+# Outputs:
+# - reprojected raster
+# - dissolved continent shapefile
+# - continent raster
+# - CSV with counts
+# - CSV with proportions
 
-Required packages:
-pip install geopandas rasterio rasterstats numpy pandas shapely pyproj requests
-"""
-
+# Modules -------------------------------------------------------------------
 from pathlib import Path
 import zipfile
 import requests
@@ -33,15 +31,17 @@ import rasterio
 from rasterio.warp import calculate_default_transform, reproject, Resampling
 from rasterio.features import rasterize
 
-# -----------------------------------------------------------------------------
-# USER SETTINGS
-# -----------------------------------------------------------------------------
 
-INPUT_RASTER = "/data/mschuerz/clustering_global/world_v2/world_clusters30.tif"
+# Directories and settings ---------------------------------------------------
 
-OUTPUT_DIR = Path("/data/mschuerz/clustering_global/world_v2/continent_statistic")
+# Define Input raster
+INPUT_RASTER = "/my_directory/data/clustering_global/l_fhc/lfhc_clusters30.tif"
+
+# Define output directory
+OUTPUT_DIR = Path("/my_directory/data/clustering_global/l_fhc/continent_statistic")
 OUTPUT_DIR.mkdir(exist_ok=True)
 
+# Define CRS
 TARGET_CRS = "ESRI:54009"  # World Mollweide
 
 # Natural Earth countries
@@ -50,9 +50,8 @@ NE_URL = (
     "ne_50m_admin_0_countries.zip"
 )
 
-# -----------------------------------------------------------------------------
-# OUTPUT FILES
-# -----------------------------------------------------------------------------
+
+# Output files ----------------------------------------------------------------
 
 REPROJECTED_RASTER = OUTPUT_DIR / "raster_54009.tif"
 COUNTRIES_ZIP = OUTPUT_DIR / "naturalearth_countries.zip"
@@ -64,9 +63,8 @@ CONTINENT_RASTER = OUTPUT_DIR / "continents_rasterized.tif"
 COUNTS_CSV = OUTPUT_DIR / "continent_category_counts.csv"
 PROPORTIONS_CSV = OUTPUT_DIR / "continent_category_proportions.csv"
 
-# -----------------------------------------------------------------------------
-# DOWNLOAD NATURAL EARTH
-# -----------------------------------------------------------------------------
+
+# Download Natural Earth Data -------------------------------------------------
 
 print("Downloading Natural Earth countries...")
 
@@ -88,9 +86,8 @@ if not shp_files:
 
 COUNTRIES_SHP = shp_files[0]
 
-# -----------------------------------------------------------------------------
-# LOAD + DISSOLVE CONTINENTS
-# -----------------------------------------------------------------------------
+
+# Load and dissolve continents ------------------------------------------------
 
 print("Loading Natural Earth data...")
 
@@ -120,7 +117,7 @@ continents = gpd.GeoDataFrame(
     crs=TARGET_CRS
 )
 
-# Save as GeoPackage (recommended)
+# Save as GeoPackage
 #CONTINENTS_FILE = OUTPUT_DIR / "continents_54009.gpkg"
 
 #continents.to_file(
@@ -130,9 +127,8 @@ continents = gpd.GeoDataFrame(
 
 #print(f"Saved continents shapefile: {CONTINENTS_SHP}")
 
-# -----------------------------------------------------------------------------
-# REPROJECT RASTER
-# -----------------------------------------------------------------------------
+
+# Reproject raster ------------------------------------------------------------
 
 print("Reprojecting raster...")
 
@@ -170,9 +166,8 @@ with rasterio.open(INPUT_RASTER) as src:
 
 print(f"Saved reprojected raster: {REPROJECTED_RASTER}")
 
-# -----------------------------------------------------------------------------
-# RASTERIZE CONTINENTS
-# -----------------------------------------------------------------------------
+
+# Rasterize continents --------------------------------------------------------
 
 print("Rasterizing continents...")
 
@@ -214,9 +209,8 @@ with rasterio.open(REPROJECTED_RASTER) as src:
 
 print(f"Saved rasterized continents: {CONTINENT_RASTER}")
 
-# -----------------------------------------------------------------------------
-# CALCULATE CATEGORY PROPORTIONS
-# -----------------------------------------------------------------------------
+
+# Calculate category proportion -----------------------------------------------
 
 print("Calculating category statistics...")
 
